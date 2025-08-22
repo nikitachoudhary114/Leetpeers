@@ -2,10 +2,25 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signToken } from "@/lib/auth";
+import { z } from "zod";
+
+const userSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+     const body = await req.json();
+        const parsed = userSchema.safeParse(body);
+    
+        if (!parsed.success) {
+          return NextResponse.json(
+            { errors: parsed.error.format() },
+            { status: 400 }
+          );
+        }
+    const { email, password } =  parsed.data;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user)
