@@ -17,20 +17,31 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
+  name      String?
   username  String   @unique
-  password  String // hashed
+  password  String   // hashed
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // rooms where user is a participant
-  rooms Room[] @relation("RoomPlayers")
+  // profile fields
+  leetcodeProfile String?   @unique  
+  bio             String?   
+  avatarUrl       String?   
+  githubProfile   String?   
+  linkedinProfile String?   
+  country         String?   
+  streakCount     Int       @default(0) 
+  problemsSolved  Int       @default(0) 
 
-  // rooms where user is the owner
+  // relations
+  rooms Room[] @relation("RoomPlayers")
   ownedRooms Room[] @relation("RoomOwner")
 }
 
+
 model Room {
   id        String   @id @default(cuid())
+  name      String?   
   code      String   @unique // random room code
   createdAt DateTime @default(now())
 

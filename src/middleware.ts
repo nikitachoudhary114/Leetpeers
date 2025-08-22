@@ -7,20 +7,26 @@ const SECRET = new TextEncoder().encode(
 );
 
 export async function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith("/api/room")) {
+  const { pathname } = req.nextUrl;
+
+  // ✅ public routes (no auth required)
+  const publicRoutes = ["/api/auth/login", "/api/auth/register"];
+  if (publicRoutes.some((route) => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
+
+  // ✅ only protect /api/room/* and /api/user/*
+  if (pathname.startsWith("/api/room") || pathname.startsWith("/api/user")) {
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       return NextResponse.json({ error: "No token" }, { status: 401 });
     }
 
     const token = authHeader.replace("Bearer ", "");
-    console.log("token:", token);
-
     try {
       const { payload } = await jwtVerify(token, SECRET);
-      console.log("payload:", payload);
-
       const userId = payload.id as string | undefined;
+
       if (!userId) {
         return NextResponse.json(
           { error: "Invalid token payload" },
@@ -31,7 +37,7 @@ export async function middleware(req: NextRequest) {
       // ✅ create a response
       const res = NextResponse.next();
 
-      // ✅ set cookie
+      // ✅ set cookie for backend use (optional)
       res.cookies.set("userId", userId, {
         httpOnly: true,
         path: "/",
@@ -40,7 +46,7 @@ export async function middleware(req: NextRequest) {
         maxAge: 60 * 60 * 24 * 7, // 7 days
       });
 
-      // ✅ ALSO return userId in headers for debugging / Postman
+      // ✅ ALSO return userId in headers (for APIs to consume)
       res.headers.set("x-user-id", userId);
 
       return res;
@@ -54,5 +60,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/room/:path*"],
+  matcher: ["/api/:path*"], // middleware runs on ALL api routes
 };
