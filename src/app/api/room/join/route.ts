@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 export async function POST(req: Request) {
   try {
-     const userId = req.headers.get("x-user-id");
-
-     if (!userId) {
-       return NextResponse.json(
-         { error: "Not authenticated" },
-         { status: 401 }
-       );
-     }
+      const session = await getServerSession({ req, ...authOptions });
+     
+         if (!session || !session.user?.id) {
+           return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+         }
+     
+         const userId = session.user.id;
     const { code } = await req.json();
 
     // Check if user is already in the room

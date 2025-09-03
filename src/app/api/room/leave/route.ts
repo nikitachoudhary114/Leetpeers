@@ -1,13 +1,17 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = req.headers.get("x-user-id"); // ✅ from middleware
-    if (!userId) {
+    const session = await getServerSession({ req, ...authOptions });
+
+    if (!session || !session.user?.id) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const userId = session.user.id;
     const { roomId } = await req.json();
 
     if (!roomId) {

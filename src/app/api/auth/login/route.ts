@@ -11,16 +11,17 @@ const userSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-     const body = await req.json();
-        const parsed = userSchema.safeParse(body);
-    
-        if (!parsed.success) {
-          return NextResponse.json(
-            { errors: parsed.error.format() },
-            { status: 400 }
-          );
-        }
-    const { email, password } =  parsed.data;
+    const body = await req.json();
+    const parsed = userSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { errors: parsed.error.format() },
+        { status: 400 }
+      );
+    }
+
+    const { email, password } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user)
@@ -32,7 +33,17 @@ export async function POST(req: Request) {
 
     const token = signToken({ id: user.id });
 
-    return NextResponse.json({ token });
+    // ✅ Set HTTP-only cookie with userId
+    const res = NextResponse.json({ token });
+    res.cookies.set("userId", user.id, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return res;
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
