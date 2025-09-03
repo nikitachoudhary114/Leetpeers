@@ -1,16 +1,23 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 
 export const runtime = "nodejs"; 
 export async function POST(req: NextRequest) {
   try {
     
-    const userId = req.headers.get("x-user-id");
+     const session = await getServerSession({ req, ...authOptions });
 
-    if (!userId) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
+     if (!session || !session.user?.id) {
+       return NextResponse.json(
+         { error: "Not authenticated" },
+         { status: 401 }
+       );
+     }
+
+     const userId = session.user.id;
 
     const body = await req.json();
     const { name } = body;
