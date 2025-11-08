@@ -1,65 +1,27 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
-
-
-export default async function Dashboard() {
-  // Get session on the server
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return (
-      <div className="p-8 text-center">
-        <h2 className="text-xl font-bold">You are not logged in.</h2>
-        <p>
-          Please{" "}
-          <a href="/auth/signin" className="text-blue-500">
-            sign in
-          </a>
-          .
-        </p>
-      </div>
-    );
-  }
-
-  // Fetch user directly from database
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-  });
-
-  if (!user) {
-    return <p className="p-8 text-red-500">User not found</p>;
-  }
-
+export default function DashboardPage() {
   return (
-    <div className="p-8 max-w-lg mx-auto bg-white rounded shadow mt-10">
-      <h1 className="text-2xl font-bold mb-4 text-black">Dashboard</h1>
-      <div className="flex flex-col gap-2 text-black">
-        <p>
-          <strong>ID:</strong> {user.id}
-        </p>
-        <p>
-          <strong>Name:</strong> {user.name}
-        </p>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
-        <p>
-          <strong>Username:</strong> {user.username}
-        </p>
-        <p>
-          <strong>Created At:</strong> {user.createdAt.toISOString()}
-        </p>
-        <p>
-          <strong>Updated At:</strong> {user.updatedAt.toISOString()}
-        </p>
+    <div className="space-y-4">
+      <h1 className="text-3xl font-bold text-purple-400">Dashboard</h1>
+      <p className="text-gray-300">
+        Start collaborating, solving coding problems, and connecting with peers!
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="bg-white/10 p-6 rounded-xl border border-white/10 shadow-lg hover:bg-white/20 transition">
+          <h2 className="text-xl font-semibold mb-2">👥 Peer Groups</h2>
+          <p className="text-gray-400">Create or join a coding group.</p>
+        </div>
+
+        <div className="bg-white/10 p-6 rounded-xl border border-white/10 shadow-lg hover:bg-white/20 transition">
+          <h2 className="text-xl font-semibold mb-2">📝 Real-time Collaboration</h2>
+          <p className="text-gray-400">Solve coding problems with peers.</p>
+        </div>
+
+        <div className="bg-white/10 p-6 rounded-xl border border-white/10 shadow-lg hover:bg-white/20 transition">
+          <h2 className="text-xl font-semibold mb-2">🏆 Your Stats</h2>
+          <p className="text-gray-400">Track your progress & achievements.</p>
+        </div>
       </div>
-      <a
-        href="/auth/signin"
-        className="mt-6 inline-block bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </a>
     </div>
   );
 }
