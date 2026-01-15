@@ -1,65 +1,75 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
+import { getServerSession } from 'next-auth/next';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/authOptions';
+import prisma from '@/lib/prisma';
+import { DashboardContainer } from './DashboardContainer';
 
-
-export default async function Dashboard() {
-  // Get session on the server
+export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    return (
-      <div className="p-8 text-center">
-        <h2 className="text-xl font-bold">You are not logged in.</h2>
-        <p>
-          Please{" "}
-          <a href="/auth/signin" className="text-blue-500">
-            sign in
-          </a>
-          .
-        </p>
-      </div>
-    );
+    redirect('/auth/signin');
   }
 
-  // Fetch user directly from database
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      username: true,
+      avatarUrl: true,
+      leetcodeProfile: true,
+      streakCount: true,
+      problemsSolved: true,
+      bio: true,
+      country: true,
+      createdAt: true,
+    },
   });
 
   if (!user) {
-    return <p className="p-8 text-red-500">User not found</p>;
+    redirect('/auth/signin');
   }
 
-  return (
-    <div className="p-8 max-w-lg mx-auto bg-white rounded shadow mt-10">
-      <h1 className="text-2xl font-bold mb-4 text-black">Dashboard</h1>
-      <div className="flex flex-col gap-2 text-black">
-        <p>
-          <strong>ID:</strong> {user.id}
-        </p>
-        <p>
-          <strong>Name:</strong> {user.name}
-        </p>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
-        <p>
-          <strong>Username:</strong> {user.username}
-        </p>
-        <p>
-          <strong>Created At:</strong> {user.createdAt.toISOString()}
-        </p>
-        <p>
-          <strong>Updated At:</strong> {user.updatedAt.toISOString()}
-        </p>
-      </div>
-      <a
-        href="/auth/signin"
-        className="mt-6 inline-block bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </a>
-    </div>
-  );
+  const rooms = await prisma.room.findMany({
+    where: {
+      players: {
+        some: { id: session.user.id },
+      },
+    },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+        },
+      },
+      players: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      _count: {
+        select: { players: true },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  // Serialize dates for client component
+  const serializedUser = {
+    ...user,
+    createdAt: user.createdAt.toISOString(),
+  };
+
+  const serializedRooms = rooms.map((room) => ({
+    ...room,
+    createdAt: room.createdAt.toISOString(),
+  }));
+
+  return <DashboardContainer user={serializedUser} rooms={serializedRooms} />;
 }

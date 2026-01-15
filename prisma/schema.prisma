@@ -23,22 +23,39 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  leetcodeProfile String? @unique
-  bio             String?
-  avatarUrl       String?
-  githubProfile   String?
-  linkedinProfile String?
-  country         String?
+  leetcodeProfile  String?  @unique
+  leetcodeVerified Boolean  @default(false)
+  bio              String?
+  avatarUrl        String?
+  githubProfile    String?
+  githubVerified   Boolean  @default(false)
+  linkedinProfile  String?
+  country          String?
 
   streakCount     Int  @default(0)
   problemsSolved  Int  @default(0)
   lastTotalSolved Int?
 
-  rooms      Room[]      @relation("RoomPlayers")
-  ownedRooms Room[]      @relation("RoomOwner")
-  Account    Account[]
-  Session    Session[]
-  StreakLog  StreakLog[]
+  rooms              Room[]              @relation("RoomPlayers")
+  ownedRooms         Room[]              @relation("RoomOwner")
+  Account            Account[]
+  Session            Session[]
+  StreakLog          StreakLog[]
+  ProfileVerification ProfileVerification[]
+}
+
+model ProfileVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "leetcode" or "github"
+  code      String   @unique
+  username  String   // The username being verified
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
 }
 
 model Room {

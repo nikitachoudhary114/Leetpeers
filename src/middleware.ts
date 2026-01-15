@@ -3,14 +3,18 @@ import { withAuth } from "next-auth/middleware";
 
 export default withAuth({
   pages: {
-    signIn: "/api/auth/signin", // where to redirect if not signed in
+    signIn: "/auth/signin", // where to redirect if not signed in
   },
 });
 
 export const config = {
   matcher: [
+    "/dashboard",
     "/profile",
+    "/rooms",
+    "/rooms/:path*",
     "/api/user/:path*",
-    "/api/room/:path*", // protect these APIs and pages
+    "/api/room/:path*",
+    "/api/rooms/:path*",
   ],
 };

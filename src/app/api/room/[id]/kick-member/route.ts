@@ -10,17 +10,17 @@ const schema = z.object({
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
      const session = await getServerSession({ req, ...authOptions });
-    
+
         if (!session || !session.user?.id) {
           return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
         }
-    
+
         const userId = session.user.id;
-    const roomId = params.id;
+    const { id: roomId } = await params;
     const { userIdToKick } = schema.parse(await req.json());
 
     // fetch room
