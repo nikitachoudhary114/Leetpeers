@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx next dev --turbopack)",
+      "Bash(./node_modules/.bin/next dev --turbopack)",
+      "Bash(xargs:*)",
+      "Bash(tree:*)",
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx next build)",
+      "Bash(npx prisma generate:*)",
+      "Bash(del \"C:\\\\Users\\\\User\\\\Leetpeers\\\\src\\\\lib\\\\auth.js\")",
+      "Bash(npm install:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(timeout:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(where:*)",
+      "Bash(psql:*)",
+      "Bash(docker:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(taskkill:*)",
+      "Bash(powershell:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(ping:*)",
+      "Bash(netstat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd comprehensive dashboard, rooms, learning, and verification features\n\n- Dashboard: Profile, Learn DSA, Practice Problems, Progress Analytics, Rooms, LeetCode Analytics, AI Assistant\n- Rooms: Real-time chat UI, video section, members list with stats, leaderboard, problems section, solutions/strategies\n- Learning: DSA documentation for Python, JavaScript, Java, C++ with code examples\n- Practice Analytics: Weekly/monthly/yearly progress tracking with charts and heatmaps\n- Profile Verification: Bio-based verification for LeetCode and GitHub accounts\n- UI Components: Avatar, Badge, Button, Card, Modal, ProgressBar, Tabs, etc.\n- Database: Added verification fields and ProfileVerification model\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(git config:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
