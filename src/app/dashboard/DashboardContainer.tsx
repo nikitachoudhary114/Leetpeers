@@ -16,6 +16,7 @@ import {
 } from "./components";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar } from "@/components/ui/Avatar";
+import { LeetCodeStats } from "@/types";
 
 interface Room {
   id: string;
@@ -65,6 +66,9 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
   const [leetcodeSolved, setLeetcodeSolved] = useState<number>(
     user.problemsSolved ?? 0
   );
+  const [leetcodeStats, setLeetcodeStats] = useState<LeetCodeStats | null>(
+    null
+  );
 
   useEffect(() => {
     if (!user.leetcodeProfile) return;
@@ -85,6 +89,26 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
           );
 
         setLeetcodeSolved(allStats?.count ?? 0);
+
+        const statsArray =
+          result?.data?.matchedUser?.submitStats?.acSubmissionNum ?? [];
+
+        const getCount = (difficulty: string) =>
+          statsArray.find((s: any) => s.difficulty === difficulty)?.count ?? 0;
+
+        // total solved (for existing widgets)
+        setLeetcodeSolved(getCount("All"));
+
+        // full stats object (for profile UI)
+        setLeetcodeStats({
+          ranking: result?.data?.matchedUser?.profile?.ranking ?? null,
+          solved: {
+            all: getCount("All"),
+            easy: getCount("Easy"),
+            medium: getCount("Medium"),
+            hard: getCount("Hard"),
+          },
+        });
       } catch (err) {
         console.error("Failed to fetch LeetCode stats", err);
       }
@@ -96,7 +120,13 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
   const renderContent = () => {
     switch (activeSection) {
       case "profile":
-        return <ProfileWidget user={user} leetcodeSolved={leetcodeSolved} />;
+        return (
+          <ProfileWidget
+            user={user}
+            leetcodeSolved={leetcodeSolved}
+            leetcodeStats={leetcodeStats}
+          />
+        );
 
       case "learning":
         return <LearningWidget />;
@@ -121,8 +151,7 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
           />
         );
       default:
-  return <ProfileWidget user={user} leetcodeSolved={leetcodeSolved} />;
-
+        return <ProfileWidget user={user} leetcodeSolved={leetcodeSolved} />;
     }
   };
 

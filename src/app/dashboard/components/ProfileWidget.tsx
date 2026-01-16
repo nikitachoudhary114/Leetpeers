@@ -17,136 +17,143 @@ interface ProfileWidgetProps {
     createdAt: string;
   };
   leetcodeSolved: number;
+  leetcodeStats?: {
+    ranking: number | null;
+    solved: {
+      all: number;
+      easy: number;
+      medium: number;
+      hard: number;
+    };
+  } | null;
 }
 
 export function ProfileWidget({
   user,
   leetcodeSolved,
+  leetcodeStats,
 }: ProfileWidgetProps) {
-
   const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
   });
 
-  return (
-    <div className="space-y-6">
+ return (
+  <div className="space-y-6">
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
+        Your Profile
+      </h2>
+      <Link
+        href="/profile"
+        className="text-sm font-medium text-indigo-500 hover:text-indigo-400 transition-colors"
+      >
+        Edit Profile →
+      </Link>
+    </div>
+
+    {/* Profile Card */}
+    <div className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-bg-tertiary)] to-[var(--color-bg-secondary)] p-6">
+
+      {/* Glow */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl" />
+
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
-          Your Profile
-        </h2>
-        <Link
-          href="/profile"
-          className="text-sm text-indigo-500 hover:text-indigo-400 transition-colors"
-        >
-          Edit Profile
-        </Link>
-      </div>
-
-      {/* Profile Card */}
-      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-6 border border-[var(--color-border)] transition-colors duration-300">
-        <div className="flex items-center gap-4 mb-6">
-          <Avatar src={user.avatarUrl} name={user.name} size="xl" />
-          <div>
-            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-              {user.name || "Anonymous"}
-            </h3>
-            <p className="text-[var(--color-text-muted)]">
-              @{user.username || "username"}
-            </p>
-            {user.country && (
-              <p className="text-sm text-[var(--color-text-disabled)] mt-1">
-                {user.country}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {user.bio && (
-          <p className="text-[var(--color-text-secondary)] text-sm mb-6 leading-relaxed">
-            {user.bio}
+      <div className="relative flex items-center gap-5 mb-6">
+        <Avatar src={user.avatarUrl} name={user.name} size="xl" />
+        <div>
+          <h3 className="text-xl font-semibold text-[var(--color-text-primary)]">
+            {user.name || "Anonymous"}
+          </h3>
+          <p className="text-sm text-[var(--color-text-muted)]">
+            @{user.username || "username"}
           </p>
-        )}
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-orange-400">
-              {user.streakCount}
-            </div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1">
-              Day Streak
-            </div>
-          </div>
-          <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-emerald-400">
-              {leetcodeSolved}
-            </div>
-
-            <div className="text-xs text-[var(--color-text-muted)] mt-1">
-              Solved
-            </div>
-          </div>
-          <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
-            <div className="text-sm font-medium text-[var(--color-text-secondary)]">
-              {memberSince}
-            </div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1">
-              Member Since
-            </div>
-          </div>
-        </div>
-
-        {/* LeetCode Connection */}
-        <div className="border-t border-[var(--color-border)] pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <LeetCodeIcon className="w-5 h-5 text-amber-500" />
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                LeetCode
-              </span>
-            </div>
-            {user.leetcodeProfile ? (
-              <div className="flex items-center gap-2">
-                <Badge variant="success">Connected</Badge>
-                <a
-                  href={`https://leetcode.com/${user.leetcodeProfile}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-indigo-500 hover:text-indigo-400"
-                >
-                  @{user.leetcodeProfile}
-                </a>
-              </div>
-            ) : (
-              <Link href="/profile">
-                <Badge variant="warning">Connect Now</Badge>
-              </Link>
-            )}
-          </div>
+          {user.country && (
+            <p className="text-xs text-[var(--color-text-disabled)] mt-1">
+              {user.country}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link
-          href="/profile"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
-        >
-          <EditIcon className="w-4 h-4" />
-          Edit Profile
-        </Link>
-        <Link
-          href="/rooms"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
-        >
-          <RoomsIcon className="w-4 h-4" />
-          View Rooms
-        </Link>
+      {/* Bio */}
+      {user.bio && (
+        <p className="relative text-sm text-[var(--color-text-secondary)] leading-relaxed mb-6">
+          {user.bio}
+        </p>
+      )}
+
+      {/* Ranking Highlight */}
+      {leetcodeStats?.ranking && (
+        <div className="mb-6 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 px-5 py-4 flex items-center justify-between">
+          <span className="text-sm text-[var(--color-text-muted)]">
+            🌍 LeetCode Global Ranking
+          </span>
+          <span className="text-2xl font-bold text-indigo-400">
+            #{leetcodeStats.ranking.toLocaleString()}
+          </span>
+        </div>
+      )}
+
+      {/* Core Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <StatCard label="Day Streak" value={user.streakCount} color="orange" />
+        <StatCard label="Solved" value={leetcodeSolved} color="emerald" />
+        <StatCard label="Member Since" value={memberSince} small />
+      </div>
+
+      {/* Difficulty Breakdown */}
+      {leetcodeStats && (
+        <div className="mb-6">
+          <p className="text-sm font-medium text-[var(--color-text-muted)] mb-3">
+            Difficulty Breakdown
+          </p>
+          <div className="flex gap-3">
+            <DifficultyPill label="Easy" value={leetcodeStats.solved.easy} color="green" />
+            <DifficultyPill label="Medium" value={leetcodeStats.solved.medium} color="yellow" />
+            <DifficultyPill label="Hard" value={leetcodeStats.solved.hard} color="red" />
+          </div>
+        </div>
+      )}
+
+      {/* LeetCode Connection */}
+      <div className="pt-4 border-t border-[var(--color-border)] flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <LeetCodeIcon className="w-5 h-5 text-amber-400" />
+          <span className="text-sm text-[var(--color-text-secondary)]">
+            LeetCode
+          </span>
+        </div>
+
+        {user.leetcodeProfile ? (
+          <div className="flex items-center gap-2">
+            <Badge variant="success">Connected</Badge>
+            <a
+              href={`https://leetcode.com/${user.leetcodeProfile}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-indigo-500 hover:text-indigo-400"
+            >
+              @{user.leetcodeProfile}
+            </a>
+          </div>
+        ) : (
+          <Link href="/profile">
+            <Badge variant="warning">Connect Now</Badge>
+          </Link>
+        )}
       </div>
     </div>
-  );
+
+    {/* Actions */}
+    <div className="grid grid-cols-2 gap-3">
+      <ActionButton href="/profile" label="Edit Profile" icon={<EditIcon className="w-3.5 h-3.5" />} />
+      <ActionButton href="/rooms" label="View Rooms" icon={<RoomsIcon className="w-3.5 h-3.5"/>} />
+    </div>
+  </div>
+);
+
 }
 
 function LeetCodeIcon({ className }: { className?: string }) {
@@ -190,5 +197,114 @@ function RoomsIcon({ className }: { className?: string }) {
         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
       />
     </svg>
+  );
+}
+
+function ActionButton({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="
+        inline-flex items-center justify-center gap-1.5
+        rounded-lg
+        border border-[var(--color-border)]
+        bg-[var(--color-bg-tertiary)]
+        px-3 py-1.5
+        text-xs font-medium
+        text-[var(--color-text-secondary)]
+        transition-all
+        hover:bg-[var(--color-bg-hover)]
+        hover:text-[var(--color-text-primary)]
+        hover:-translate-y-0.5
+        active:translate-y-0
+      "
+    >
+      <span className="w-3.5 h-3.5">{icon}</span>
+      {label}
+    </Link>
+  );
+}
+
+
+const STAT_COLORS = {
+  orange: "text-orange-400",
+  emerald: "text-emerald-400",
+  indigo: "text-indigo-400",
+};
+
+function StatCard({
+  label,
+  value,
+  color = "indigo",
+  small,
+}: {
+  label: string;
+  value: string | number;
+  color?: keyof typeof STAT_COLORS;
+  small?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl bg-[var(--color-bg-hover)] p-4 text-center">
+      <div
+        className={`${small ? "text-sm" : "text-2xl"} font-bold ${
+          STAT_COLORS[color]
+        }`}
+      >
+        {value}
+      </div>
+      <div className="text-xs text-[var(--color-text-muted)] mt-1">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+
+const DIFFICULTY_COLORS = {
+  green: {
+    bg: "bg-green-500/10",
+    border: "border-green-500/20",
+    text: "text-green-400",
+  },
+  yellow: {
+    bg: "bg-yellow-500/10",
+    border: "border-yellow-500/20",
+    text: "text-yellow-400",
+  },
+  red: {
+    bg: "bg-red-500/10",
+    border: "border-red-500/20",
+    text: "text-red-400",
+  },
+};
+
+function DifficultyPill({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: keyof typeof DIFFICULTY_COLORS;
+}) {
+  const c = DIFFICULTY_COLORS[color];
+
+  return (
+    <div
+      className={`flex-1 rounded-xl ${c.bg} ${c.border} px-4 py-3 text-center transition-all hover:-translate-y-0.5 hover:shadow-sm`}
+    >
+      <p className={`text-xl font-bold ${c.text}`}>{value}</p>
+      <p className="text-xs text-[var(--color-text-muted)] mt-1">
+        {label}
+      </p>
+    </div>
   );
 }

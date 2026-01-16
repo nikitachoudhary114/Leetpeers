@@ -90,3 +90,13 @@ export interface ProfileUpdatePayload {
   country?: string | null;
   avatarUrl?: string | null;
 }
+
+export interface LeetCodeStats {
+  ranking: number | null;
+  solved: {
+    all: number;
+    easy: number;
+    medium: number;
+    hard: number;
+  };
+}
