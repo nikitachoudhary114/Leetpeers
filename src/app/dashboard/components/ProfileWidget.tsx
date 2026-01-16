@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Avatar, Badge } from '@/components/ui';
+import Link from "next/link";
+import { Avatar, Badge } from "@/components/ui";
 
 interface ProfileWidgetProps {
   user: {
@@ -12,24 +12,30 @@ interface ProfileWidgetProps {
     avatarUrl: string | null;
     leetcodeProfile: string | null;
     streakCount: number;
-    problemsSolved: number;
     bio: string | null;
     country: string | null;
     createdAt: string;
   };
+  leetcodeSolved: number;
 }
 
-export function ProfileWidget({ user }: ProfileWidgetProps) {
-  const memberSince = new Date(user.createdAt).toLocaleDateString('en-US', {
-    month: 'short',
-    year: 'numeric',
+export function ProfileWidget({
+  user,
+  leetcodeSolved,
+}: ProfileWidgetProps) {
+
+  const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
   });
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Your Profile</h2>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
+          Your Profile
+        </h2>
         <Link
           href="/profile"
           className="text-sm text-indigo-500 hover:text-indigo-400 transition-colors"
@@ -43,31 +49,52 @@ export function ProfileWidget({ user }: ProfileWidgetProps) {
         <div className="flex items-center gap-4 mb-6">
           <Avatar src={user.avatarUrl} name={user.name} size="xl" />
           <div>
-            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">{user.name || 'Anonymous'}</h3>
-            <p className="text-[var(--color-text-muted)]">@{user.username || 'username'}</p>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+              {user.name || "Anonymous"}
+            </h3>
+            <p className="text-[var(--color-text-muted)]">
+              @{user.username || "username"}
+            </p>
             {user.country && (
-              <p className="text-sm text-[var(--color-text-disabled)] mt-1">{user.country}</p>
+              <p className="text-sm text-[var(--color-text-disabled)] mt-1">
+                {user.country}
+              </p>
             )}
           </div>
         </div>
 
         {user.bio && (
-          <p className="text-[var(--color-text-secondary)] text-sm mb-6 leading-relaxed">{user.bio}</p>
+          <p className="text-[var(--color-text-secondary)] text-sm mb-6 leading-relaxed">
+            {user.bio}
+          </p>
         )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-orange-400">{user.streakCount}</div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1">Day Streak</div>
+            <div className="text-2xl font-bold text-orange-400">
+              {user.streakCount}
+            </div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">
+              Day Streak
+            </div>
           </div>
           <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
-            <div className="text-2xl font-bold text-emerald-400">{user.problemsSolved}</div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1">Solved</div>
+            <div className="text-2xl font-bold text-emerald-400">
+              {leetcodeSolved}
+            </div>
+
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">
+              Solved
+            </div>
           </div>
           <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
-            <div className="text-sm font-medium text-[var(--color-text-secondary)]">{memberSince}</div>
-            <div className="text-xs text-[var(--color-text-muted)] mt-1">Member Since</div>
+            <div className="text-sm font-medium text-[var(--color-text-secondary)]">
+              {memberSince}
+            </div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">
+              Member Since
+            </div>
           </div>
         </div>
 
@@ -76,7 +103,9 @@ export function ProfileWidget({ user }: ProfileWidgetProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <LeetCodeIcon className="w-5 h-5 text-amber-500" />
-              <span className="text-sm text-[var(--color-text-secondary)]">LeetCode</span>
+              <span className="text-sm text-[var(--color-text-secondary)]">
+                LeetCode
+              </span>
             </div>
             {user.leetcodeProfile ? (
               <div className="flex items-center gap-2">
@@ -130,7 +159,12 @@ function LeetCodeIcon({ className }: { className?: string }) {
 
 function EditIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -143,7 +177,12 @@ function EditIcon({ className }: { className?: string }) {
 
 function RoomsIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
 import {
   Sidebar,
   MobileSidebar,
@@ -13,9 +13,9 @@ import {
   ProblemsWidget,
   LearningWidget,
   PracticeAnalytics,
-} from './components';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { Avatar } from '@/components/ui/Avatar';
+} from "./components";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Avatar } from "@/components/ui/Avatar";
 
 interface Room {
   id: string;
@@ -60,32 +60,69 @@ interface DashboardContainerProps {
 }
 
 export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
-  const [activeSection, setActiveSection] = useState('profile');
+  const [activeSection, setActiveSection] = useState("profile");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [leetcodeSolved, setLeetcodeSolved] = useState<number>(
+    user.problemsSolved ?? 0
+  );
+
+  useEffect(() => {
+    if (!user.leetcodeProfile) return;
+
+    const fetchLeetCodeStats = async () => {
+      try {
+        const res = await fetch("/api/leetcode/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: user.leetcodeProfile }),
+        });
+
+        const result = await res.json();
+
+        const allStats =
+          result?.data?.matchedUser?.submitStats?.acSubmissionNum?.find(
+            (s: any) => s.difficulty === "All"
+          );
+
+        setLeetcodeSolved(allStats?.count ?? 0);
+      } catch (err) {
+        console.error("Failed to fetch LeetCode stats", err);
+      }
+    };
+
+    fetchLeetCodeStats();
+  }, [user.leetcodeProfile]);
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'profile':
-        return <ProfileWidget user={user} />;
-      case 'learning':
+      case "profile":
+        return <ProfileWidget user={user} leetcodeSolved={leetcodeSolved} />;
+
+      case "learning":
         return <LearningWidget />;
-      case 'problems':
+      case "problems":
         return <ProblemsWidget userStreak={user.streakCount} />;
-      case 'progress':
+      case "progress":
         return <PracticeAnalytics userStreak={user.streakCount} />;
-      case 'rooms':
+      case "rooms":
         return <RoomsWidget rooms={rooms} userId={user.id} />;
-      case 'analytics':
+      case "analytics":
         return (
           <AnalyticsWidget
             leetcodeUsername={user.leetcodeProfile}
             userStreak={user.streakCount}
           />
         );
-      case 'chatbot':
-        return <ChatbotWidget userName={user.name} leetcodeUsername={user.leetcodeProfile} />;
+      case "chatbot":
+        return (
+          <ChatbotWidget
+            userName={user.name}
+            leetcodeUsername={user.leetcodeProfile}
+          />
+        );
       default:
-        return <ProfileWidget user={user} />;
+  return <ProfileWidget user={user} leetcodeSolved={leetcodeSolved} />;
+
     }
   };
 
@@ -140,7 +177,7 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
                     <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] shadow-lg z-50 py-2 animate-scale-in">
                       <div className="px-4 py-2 border-b border-[var(--color-border)]">
                         <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                          {user.name || 'User'}
+                          {user.name || "User"}
                         </p>
                         <p className="text-xs text-[var(--color-text-muted)]">
                           {user.email}
@@ -162,7 +199,7 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
                       </Link>
                       <div className="border-t border-[var(--color-border)] mt-2 pt-2">
                         <button
-                          onClick={() => signOut({ callbackUrl: '/' })}
+                          onClick={() => signOut({ callbackUrl: "/" })}
                           className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-[var(--color-bg-hover)] transition-colors"
                         >
                           Sign Out
@@ -178,17 +215,21 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
       </header>
 
       {/* Mobile Navigation */}
-      <MobileSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+      <MobileSidebar
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+      />
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <Sidebar
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+        />
 
         {/* Main Content */}
         <main className="flex-1 p-6 lg:p-8">
-          <div className="max-w-3xl mx-auto">
-            {renderContent()}
-          </div>
+          <div className="max-w-3xl mx-auto">{renderContent()}</div>
         </main>
       </div>
     </div>
