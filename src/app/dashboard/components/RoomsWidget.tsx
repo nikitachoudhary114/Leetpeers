@@ -40,7 +40,7 @@ export function RoomsWidget({ rooms, userId }: RoomsWidgetProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">Your Rooms</h2>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Your Rooms</h2>
         <Link
           href="/rooms"
           className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
@@ -67,12 +67,12 @@ export function RoomsWidget({ rooms, userId }: RoomsWidgetProps) {
 
       {/* Rooms List */}
       {rooms.length === 0 ? (
-        <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 text-center">
-          <div className="w-16 h-16 bg-slate-700/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <RoomsIcon className="w-8 h-8 text-slate-500" />
+        <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-8 border border-[var(--color-border)] text-center">
+          <div className="w-16 h-16 bg-[var(--color-bg-hover)]/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <RoomsIcon className="w-8 h-8 text-[var(--color-text-muted)]" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">No rooms yet</h3>
-          <p className="text-slate-400 text-sm mb-4">
+          <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">No rooms yet</h3>
+          <p className="text-[var(--color-text-muted)] text-sm mb-4">
             Create a room to start collaborating with your peers!
           </p>
         </div>
@@ -88,7 +88,7 @@ export function RoomsWidget({ rooms, userId }: RoomsWidgetProps) {
       {rooms.length > 3 && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="w-full py-2 text-sm text-slate-400 hover:text-white transition-colors"
+          className="w-full py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
         >
           {showAll ? 'Show Less' : `Show ${rooms.length - 3} More`}
         </button>
@@ -105,17 +105,17 @@ function RoomCard({ room, userId }: { room: Room; userId: string }) {
   return (
     <Link
       href={`/rooms/${room.id}`}
-      className="block bg-slate-800/50 rounded-xl p-4 border border-slate-700 hover:border-indigo-500/50 hover:bg-slate-800 transition-all group"
+      className="block bg-[var(--color-bg-tertiary)] rounded-xl p-4 border border-[var(--color-border)] hover:border-indigo-500/50 hover:bg-[var(--color-bg-hover)] transition-all group"
     >
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors">
+            <h3 className="font-semibold text-[var(--color-text-primary)] group-hover:text-indigo-400 transition-colors">
               {room.name || 'Unnamed Room'}
             </h3>
             {isOwner && <Badge variant="premium" size="sm">Owner</Badge>}
           </div>
-          <p className="text-xs text-slate-500 mt-1">Code: {room.code}</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">Code: {room.code}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 text-orange-400">
@@ -134,15 +134,15 @@ function RoomCard({ room, userId }: { room: Room; userId: string }) {
                 src={player.avatarUrl}
                 name={player.username}
                 size="sm"
-                className="ring-2 ring-slate-800"
+                className="ring-2 ring-[var(--color-bg-tertiary)]"
               />
             ))}
           </div>
           {remainingCount > 0 && (
-            <span className="ml-2 text-xs text-slate-400">+{remainingCount}</span>
+            <span className="ml-2 text-xs text-[var(--color-text-muted)]">+{remainingCount}</span>
           )}
         </div>
-        <div className="flex items-center gap-1 text-slate-400">
+        <div className="flex items-center gap-1 text-[var(--color-text-muted)]">
           <TargetIcon className="w-4 h-4" />
           <span className="text-xs">{room.dailyTarget}/day</span>
         </div>

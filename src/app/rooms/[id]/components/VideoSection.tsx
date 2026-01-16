@@ -1,7 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Avatar, Button } from '@/components/ui';
+import {
+  LiveKitRoom,
+  RoomAudioRenderer,
+  ControlBar,
+  GridLayout,
+  ParticipantTile,
+  useTracks,
+} from '@livekit/components-react';
+import '@livekit/components-styles';
+import { Track } from 'livekit-client';
 
 interface Player {
   id: string;
@@ -11,28 +21,83 @@ interface Player {
 }
 
 interface VideoSectionProps {
+  roomId: string;
   players: Player[];
   currentUserId: string;
 }
 
-export function VideoSection({ players, currentUserId }: VideoSectionProps) {
+export function VideoSection({ roomId, players, currentUserId }: VideoSectionProps) {
   const [isInCall, setIsInCall] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOff, setIsCameraOff] = useState(false);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
+
+  // Check if LiveKit is configured on mount
+  useEffect(() => {
+    const checkConfig = async () => {
+      try {
+        const response = await fetch('/api/livekit/token');
+        const data = await response.json();
+        setIsConfigured(data.configured && data.hasUrl);
+      } catch {
+        setIsConfigured(false);
+      }
+    };
+    checkConfig();
+  }, []);
+
+  const joinCall = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/livekit/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.isDemo) {
+          setError('Video calls are not configured. Running in demo mode.');
+          setIsInCall(true);
+          return;
+        }
+        throw new Error(data.error || 'Failed to join call');
+      }
+
+      setToken(data.token);
+      setIsInCall(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to join call');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [roomId]);
+
+  const leaveCall = useCallback(() => {
+    setIsInCall(false);
+    setToken(null);
+  }, []);
 
   const currentUser = players.find((p) => p.id === currentUserId);
   const otherPlayers = players.filter((p) => p.id !== currentUserId);
 
+  // Not in call - show join screen
   if (!isInCall) {
     return (
-      <div className="bg-slate-800/30 rounded-2xl border border-slate-700 p-8">
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-8">
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
           <div className="w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mb-6">
             <VideoIcon className="w-10 h-10 text-indigo-400" />
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">Video Call</h3>
-          <p className="text-slate-400 mb-6 max-w-md">
+          <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Video Call</h3>
+          <p className="text-[var(--color-text-muted)] mb-6 max-w-md">
             Start a video call with your study group to collaborate in real-time and solve problems together.
           </p>
 
@@ -44,30 +109,136 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
                   src={player.avatarUrl}
                   name={player.name || player.username}
                   size="md"
-                  className="ring-2 ring-slate-800"
+                  className="ring-2 ring-[var(--color-bg-tertiary)]"
                 />
               ))}
             </div>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-[var(--color-text-muted)]">
               {players.length} members available
             </span>
           </div>
 
-          <Button variant="primary" onClick={() => setIsInCall(true)} className="px-8">
-            <VideoIcon className="w-5 h-5" />
-            Start Call
+          {error && (
+            <div className="mb-4 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-sm text-red-400">{error}</p>
+            </div>
+          )}
+
+          <Button
+            variant="primary"
+            onClick={joinCall}
+            disabled={isLoading}
+            className="px-8"
+          >
+            {isLoading ? (
+              <>
+                <LoadingSpinner className="w-5 h-5" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <VideoIcon className="w-5 h-5" />
+                Start Call
+              </>
+            )}
           </Button>
 
-          <p className="text-xs text-slate-500 mt-4">
-            This is a UI demo - video functionality coming soon
-          </p>
+          {isConfigured === false && (
+            <p className="text-xs text-amber-400 mt-4">
+              LiveKit not configured - demo mode available
+            </p>
+          )}
         </div>
       </div>
     );
   }
 
+  // In call with LiveKit token - show real video
+  if (token && livekitUrl) {
+    return (
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)]">
+        <LiveKitRoom
+          serverUrl={livekitUrl}
+          token={token}
+          connect={true}
+          video={true}
+          audio={true}
+          onDisconnected={leaveCall}
+          data-lk-theme="default"
+          style={{ height: '700px' }}
+        >
+          <VideoConferenceComponent />
+          <RoomAudioRenderer />
+        </LiveKitRoom>
+      </div>
+    );
+  }
+
+  // Demo mode - show mock UI
   return (
-    <div className="bg-slate-800/30 rounded-2xl border border-slate-700 overflow-hidden">
+    <DemoVideoCall
+      players={players}
+      currentUser={currentUser}
+      otherPlayers={otherPlayers}
+      onLeave={leaveCall}
+    />
+  );
+}
+
+// LiveKit Video Conference Component
+function VideoConferenceComponent() {
+  const tracks = useTracks(
+    [
+      { source: Track.Source.Camera, withPlaceholder: true },
+      { source: Track.Source.ScreenShare, withPlaceholder: false },
+    ],
+    { onlySubscribed: false }
+  );
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 p-4 min-h-0">
+        <GridLayout tracks={tracks} style={{ height: '100%' }}>
+          <ParticipantTile />
+        </GridLayout>
+      </div>
+      <div className="flex-shrink-0 border-t border-[var(--color-border)] bg-[var(--color-bg-primary)] py-2">
+        <ControlBar
+          variation="minimal"
+          controls={{
+            camera: true,
+            microphone: true,
+            screenShare: true,
+            leave: true,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Demo Video Call Component (when LiveKit not configured)
+interface DemoVideoCallProps {
+  players: Player[];
+  currentUser: Player | undefined;
+  otherPlayers: Player[];
+  onLeave: () => void;
+}
+
+function DemoVideoCall({ players, currentUser, otherPlayers, onLeave }: DemoVideoCallProps) {
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+
+  return (
+    <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)]">
+      {/* Demo Mode Banner */}
+      <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20">
+        <p className="text-sm text-amber-400 text-center">
+          Demo Mode - Configure LiveKit for real video calls
+        </p>
+      </div>
+
       {/* Video Grid */}
       <div className="p-4">
         <div
@@ -81,18 +252,18 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
         >
           {/* Current User (Large) */}
           <div
-            className={`relative aspect-video bg-slate-900 rounded-xl overflow-hidden ${
+            className={`relative aspect-video bg-[var(--color-bg-primary)] rounded-xl overflow-hidden ${
               players.length <= 2 ? 'col-span-1' : ''
             }`}
           >
             {isCameraOff ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--color-bg-primary)]">
                 <Avatar
                   src={currentUser?.avatarUrl}
                   name={currentUser?.name || currentUser?.username}
                   size="xl"
                 />
-                <span className="mt-3 text-sm text-slate-400">
+                <span className="mt-3 text-sm text-[var(--color-text-muted)]">
                   {currentUser?.name || currentUser?.username}
                 </span>
               </div>
@@ -108,7 +279,7 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
 
             {/* Name Tag */}
             <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 bg-black/50 backdrop-blur rounded-lg">
-              <span className="text-sm text-white font-medium">
+              <span className="text-sm text-[var(--color-text-primary)] font-medium">
                 {currentUser?.name || currentUser?.username} (You)
               </span>
               {isMuted && <MicOffIcon className="w-4 h-4 text-red-400" />}
@@ -119,7 +290,7 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
           {otherPlayers.map((player) => (
             <div
               key={player.id}
-              className="relative aspect-video bg-slate-900 rounded-xl overflow-hidden"
+              className="relative aspect-video bg-[var(--color-bg-primary)] rounded-xl overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 to-teal-900/30 flex items-center justify-center">
                 <Avatar
@@ -131,7 +302,7 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
 
               {/* Name Tag */}
               <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 bg-black/50 backdrop-blur rounded-lg">
-                <span className="text-sm text-white font-medium">
+                <span className="text-sm text-[var(--color-text-primary)] font-medium">
                   {player.name || player.username}
                 </span>
               </div>
@@ -140,9 +311,9 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
 
           {/* Empty Slots */}
           {players.length < 4 && (
-            <div className="aspect-video bg-slate-900/50 rounded-xl border-2 border-dashed border-slate-700 flex flex-col items-center justify-center">
-              <UserPlusIcon className="w-8 h-8 text-slate-600 mb-2" />
-              <span className="text-sm text-slate-500">Invite members</span>
+            <div className="aspect-video bg-[var(--color-bg-primary)] rounded-xl border-2 border-dashed border-[var(--color-border)] flex flex-col items-center justify-center">
+              <UserPlusIcon className="w-8 h-8 text-[var(--color-text-muted)] mb-2" />
+              <span className="text-sm text-[var(--color-text-muted)]">Invite members</span>
             </div>
           )}
         </div>
@@ -165,14 +336,14 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
       )}
 
       {/* Controls */}
-      <div className="px-4 py-4 bg-slate-900/50 border-t border-slate-800">
+      <div className="px-4 py-4 bg-[var(--color-bg-primary)] border-t border-[var(--color-border)]">
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={() => setIsMuted(!isMuted)}
             className={`p-4 rounded-xl transition-colors ${
               isMuted
                 ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                : 'bg-slate-700 text-white hover:bg-slate-600'
+                : 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
             }`}
           >
             {isMuted ? (
@@ -187,7 +358,7 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
             className={`p-4 rounded-xl transition-colors ${
               isCameraOff
                 ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                : 'bg-slate-700 text-white hover:bg-slate-600'
+                : 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
             }`}
           >
             {isCameraOff ? (
@@ -202,17 +373,17 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
             className={`p-4 rounded-xl transition-colors ${
               isScreenSharing
                 ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
-                : 'bg-slate-700 text-white hover:bg-slate-600'
+                : 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]'
             }`}
           >
             <ScreenShareIcon className="w-6 h-6" />
           </button>
 
-          <div className="w-px h-10 bg-slate-700 mx-2" />
+          <div className="w-px h-10 bg-[var(--color-border)] mx-2" />
 
           <button
-            onClick={() => setIsInCall(false)}
-            className="p-4 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors"
+            onClick={onLeave}
+            className="p-4 bg-red-500 hover:bg-red-600 text-[var(--color-text-primary)] rounded-xl transition-colors"
           >
             <PhoneOffIcon className="w-6 h-6" />
           </button>
@@ -222,6 +393,7 @@ export function VideoSection({ players, currentUserId }: VideoSectionProps) {
   );
 }
 
+// Icons
 function VideoIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -314,6 +486,26 @@ function UserPlusIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
         strokeWidth={2}
         d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+      />
+    </svg>
+  );
+}
+
+function LoadingSpinner({ className }: { className?: string }) {
+  return (
+    <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24">
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
       />
     </svg>
   );

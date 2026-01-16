@@ -182,13 +182,13 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
   if (!leetcodeUsername) {
     return (
       <div className="space-y-6">
-        <h2 className="text-xl font-bold text-white">Analytics & Recommendations</h2>
-        <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 text-center">
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Analytics & Recommendations</h2>
+        <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-8 border border-[var(--color-border)] text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <LeetCodeIcon className="w-8 h-8 text-amber-500" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">Connect LeetCode</h3>
-          <p className="text-slate-400 text-sm mb-4">
+          <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">Connect LeetCode</h3>
+          <p className="text-[var(--color-text-muted)] text-sm mb-4">
             Link your LeetCode account to track your progress and get personalized recommendations.
           </p>
           <Link href="/profile">
@@ -197,8 +197,8 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
         </div>
 
         {/* Show general recommendations */}
-        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-6 border border-[var(--color-border)]">
+          <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
             <SparklesIcon className="w-5 h-5 text-amber-400" />
             Getting Started Recommendations
           </h3>
@@ -216,7 +216,7 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">Analytics & Recommendations</h2>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Analytics & Recommendations</h2>
         <button
           onClick={fetchStats}
           disabled={loading}
@@ -228,13 +228,13 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-slate-800/50 rounded-xl">
+      <div className="flex gap-1 p-1 bg-[var(--color-bg-tertiary)] rounded-xl">
         <button
           onClick={() => setActiveTab('overview')}
           className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'overview'
-              ? 'bg-slate-700 text-white'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
+              : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
           }`}
         >
           Overview
@@ -243,8 +243,8 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
           onClick={() => setActiveTab('recommendations')}
           className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeTab === 'recommendations'
-              ? 'bg-slate-700 text-white'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
+              : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
           }`}
         >
           Recommendations
@@ -260,13 +260,13 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
       {activeTab === 'overview' && (
         <>
           {loading && !stats ? (
-            <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 flex items-center justify-center">
-              <div className="animate-pulse text-slate-400">Loading stats...</div>
+            <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-8 border border-[var(--color-border)] flex items-center justify-center">
+              <div className="animate-pulse text-[var(--color-text-muted)]">Loading stats...</div>
             </div>
           ) : stats ? (
             <>
               {/* Main Stats Card */}
-              <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+              <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-6 border border-[var(--color-border)]">
                 <div className="flex items-center gap-6 mb-6">
                   {/* Circular Progress */}
                   <CircularProgress
@@ -276,28 +276,28 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
                     strokeWidth={10}
                   >
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-white">{stats.totalSolved}</div>
-                      <div className="text-xs text-slate-400">Solved</div>
+                      <div className="text-3xl font-bold text-[var(--color-text-primary)]">{stats.totalSolved}</div>
+                      <div className="text-xs text-[var(--color-text-muted)]">Solved</div>
                     </div>
                   </CircularProgress>
 
                   {/* Quick Stats */}
                   <div className="flex-1 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-400">Streak</span>
+                      <span className="text-sm text-[var(--color-text-muted)]">Streak</span>
                       <div className="flex items-center gap-2">
                         <FireIcon className="w-4 h-4 text-orange-400" />
-                        <span className="font-semibold text-white">{userStreak} days</span>
+                        <span className="font-semibold text-[var(--color-text-primary)]">{userStreak} days</span>
                       </div>
                     </div>
                     {stats.ranking > 0 && (
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-400">Ranking</span>
-                        <span className="font-semibold text-white">#{stats.ranking.toLocaleString()}</span>
+                        <span className="text-sm text-[var(--color-text-muted)]">Ranking</span>
+                        <span className="font-semibold text-[var(--color-text-primary)]">#{stats.ranking.toLocaleString()}</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-400">LeetCode</span>
+                      <span className="text-sm text-[var(--color-text-muted)]">LeetCode</span>
                       <Badge variant="success">@{leetcodeUsername}</Badge>
                     </div>
                   </div>
@@ -333,31 +333,31 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20 text-center">
                   <div className="text-2xl font-bold text-emerald-400">{stats.easySolved}</div>
-                  <div className="text-xs text-slate-400 mt-1">Easy</div>
+                  <div className="text-xs text-[var(--color-text-muted)] mt-1">Easy</div>
                 </div>
                 <div className="bg-amber-500/10 rounded-xl p-4 border border-amber-500/20 text-center">
                   <div className="text-2xl font-bold text-amber-400">{stats.mediumSolved}</div>
-                  <div className="text-xs text-slate-400 mt-1">Medium</div>
+                  <div className="text-xs text-[var(--color-text-muted)] mt-1">Medium</div>
                 </div>
                 <div className="bg-red-500/10 rounded-xl p-4 border border-red-500/20 text-center">
                   <div className="text-2xl font-bold text-red-400">{stats.hardSolved}</div>
-                  <div className="text-xs text-slate-400 mt-1">Hard</div>
+                  <div className="text-xs text-[var(--color-text-muted)] mt-1">Hard</div>
                 </div>
               </div>
 
               {/* Progress Summary */}
-              <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-                <h3 className="text-sm font-semibold text-white mb-4">Your Progress</h3>
+              <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-6 border border-[var(--color-border)]">
+                <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">Your Progress</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-900/50 rounded-xl p-4">
-                    <div className="text-xs text-slate-500 mb-1">Total Progress</div>
-                    <div className="text-lg font-bold text-white">
+                  <div className="bg-[var(--color-bg-primary)]/50 rounded-xl p-4">
+                    <div className="text-xs text-[var(--color-text-muted)] mb-1">Total Progress</div>
+                    <div className="text-lg font-bold text-[var(--color-text-primary)]">
                       {((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1)}%
                     </div>
                   </div>
-                  <div className="bg-slate-900/50 rounded-xl p-4">
-                    <div className="text-xs text-slate-500 mb-1">To Top 10%</div>
-                    <div className="text-lg font-bold text-white">
+                  <div className="bg-[var(--color-bg-primary)]/50 rounded-xl p-4">
+                    <div className="text-xs text-[var(--color-text-muted)] mb-1">To Top 10%</div>
+                    <div className="text-lg font-bold text-[var(--color-text-primary)]">
                       {Math.max(0, 300 - stats.totalSolved)} more
                     </div>
                   </div>
@@ -373,10 +373,10 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
           <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-2xl p-6 border border-indigo-500/20">
             <div className="flex items-center gap-3 mb-2">
               <SparklesIcon className="w-5 h-5 text-amber-400" />
-              <h3 className="font-semibold text-white">AI-Powered Recommendations</h3>
+              <h3 className="font-semibold text-[var(--color-text-primary)]">AI-Powered Recommendations</h3>
             </div>
-            <p className="text-sm text-slate-400">
-              Based on your progress, here's what you should focus on next to maximize your learning.
+            <p className="text-sm text-[var(--color-text-muted)]">
+              Based on your progress, here&apos;s what you should focus on next to maximize your learning.
             </p>
           </div>
 
@@ -387,27 +387,27 @@ export function AnalyticsWidget({ leetcodeUsername, userStreak }: AnalyticsWidge
           </div>
 
           {/* Study Plan */}
-          <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-            <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-6 border border-[var(--color-border)]">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-indigo-400" />
               Suggested Weekly Plan
             </h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-20 text-xs text-slate-500">Mon-Wed</div>
-                <div className="flex-1 bg-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-300">
+                <div className="w-20 text-xs text-[var(--color-text-muted)]">Mon-Wed</div>
+                <div className="flex-1 bg-[var(--color-bg-hover)]/50 rounded-lg px-3 py-2 text-sm text-[var(--color-text-secondary)]">
                   Focus on Easy problems (2-3 per day)
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-20 text-xs text-slate-500">Thu-Fri</div>
-                <div className="flex-1 bg-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-300">
+                <div className="w-20 text-xs text-[var(--color-text-muted)]">Thu-Fri</div>
+                <div className="flex-1 bg-[var(--color-bg-hover)]/50 rounded-lg px-3 py-2 text-sm text-[var(--color-text-secondary)]">
                   Tackle Medium problems (1-2 per day)
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-20 text-xs text-slate-500">Weekend</div>
-                <div className="flex-1 bg-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-300">
+                <div className="w-20 text-xs text-[var(--color-text-muted)]">Weekend</div>
+                <div className="flex-1 bg-[var(--color-bg-hover)]/50 rounded-lg px-3 py-2 text-sm text-[var(--color-text-secondary)]">
                   Review solutions & learn new patterns
                 </div>
               </div>
@@ -423,7 +423,7 @@ function RecommendationCard({ recommendation }: { recommendation: Recommendation
   const priorityColors = {
     high: 'border-red-500/30 bg-red-500/5',
     medium: 'border-amber-500/30 bg-amber-500/5',
-    low: 'border-slate-700 bg-slate-800/50',
+    low: 'border-[var(--color-border)] bg-[var(--color-bg-tertiary)]',
   };
 
   const difficultyColors = {
@@ -442,14 +442,14 @@ function RecommendationCard({ recommendation }: { recommendation: Recommendation
             ) : (
               <CodeIcon className="w-4 h-4 text-emerald-400" />
             )}
-            <h4 className="font-medium text-white">{recommendation.title}</h4>
+            <h4 className="font-medium text-[var(--color-text-primary)]">{recommendation.title}</h4>
             {recommendation.difficulty && (
               <span className={`px-2 py-0.5 rounded text-xs ${difficultyColors[recommendation.difficulty]}`}>
                 {recommendation.difficulty}
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-400">{recommendation.reason}</p>
+          <p className="text-sm text-[var(--color-text-muted)]">{recommendation.reason}</p>
         </div>
         {recommendation.priority === 'high' && (
           <Badge variant="danger" size="sm">Priority</Badge>

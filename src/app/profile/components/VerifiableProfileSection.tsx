@@ -97,7 +97,7 @@ export function VerifiableProfileSection({
         expiresAt: data.expiresAt,
       });
       setMode('pending');
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
@@ -130,7 +130,7 @@ export function VerifiableProfileSection({
       } else {
         setError(data.error || 'Verification code not found in bio');
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);

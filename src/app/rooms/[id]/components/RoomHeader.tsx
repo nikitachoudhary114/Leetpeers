@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Avatar, Badge, Button, Modal } from '@/components/ui';
+import { Badge, Button, Modal } from '@/components/ui';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface RoomHeaderProps {
   room: {
@@ -80,21 +81,21 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
 
   return (
     <>
-      <div className="bg-slate-900/50 border-b border-slate-800 px-6 py-4">
+      <div className="bg-[var(--color-bg-primary)]/50 border-b border-[var(--color-border)] px-6 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
             {/* Room Info */}
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.push('/rooms')}
-                className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-[var(--color-bg-tertiary)] rounded-lg transition-colors"
               >
-                <BackIcon className="w-5 h-5 text-slate-400" />
+                <BackIcon className="w-5 h-5 text-[var(--color-text-muted)]" />
               </button>
 
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-bold text-white">
+                  <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
                     {room.name || 'Unnamed Room'}
                   </h1>
                   {isOwner && <Badge variant="premium">Owner</Badge>}
@@ -102,7 +103,7 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
                 <div className="flex items-center gap-3 mt-1">
                   <button
                     onClick={handleCopyCode}
-                    className="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
+                    className="flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
                   >
                     <span>Code: {room.code}</span>
                     {copied ? (
@@ -111,8 +112,8 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
                       <CopyIcon className="w-4 h-4" />
                     )}
                   </button>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-sm text-slate-400">
+                  <span className="text-[var(--color-text-muted)]">•</span>
+                  <span className="text-sm text-[var(--color-text-muted)]">
                     {room._count.players} members
                   </span>
                 </div>
@@ -139,6 +140,9 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
                 </div>
               </div>
 
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               {/* Actions */}
               {isOwner ? (
                 <Button variant="secondary" onClick={() => setShowSettings(true)}>
@@ -164,7 +168,7 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
               Daily Target (problems/day)
             </label>
             <input
@@ -173,7 +177,7 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
               max="20"
               value={dailyTarget}
               onChange={(e) => setDailyTarget(parseInt(e.target.value) || 1)}
-              className="w-full bg-slate-700 border-none rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-[var(--color-bg-hover)] border-none rounded-xl px-4 py-3 text-[var(--color-text-primary)] focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
@@ -204,7 +208,7 @@ export function RoomHeader({ room, userId }: RoomHeaderProps) {
         title="Leave Room"
       >
         <div className="space-y-4">
-          <p className="text-slate-300">
+          <p className="text-[var(--color-text-secondary)]">
             Are you sure you want to leave this room? You can rejoin later using the room code.
           </p>
 

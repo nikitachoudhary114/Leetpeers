@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="antialiased min-h-screen bg-slate-50">
+      <body className="antialiased min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-secondary)] transition-colors duration-300">
         <Providers>{children}</Providers>
       </body>
     </html>

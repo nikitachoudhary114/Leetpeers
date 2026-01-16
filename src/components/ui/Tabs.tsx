@@ -48,7 +48,7 @@ interface TabPanelsProps {
   children: React.ReactNode;
 }
 
-export function TabPanels({ activeTab, children }: TabPanelsProps) {
+export function TabPanels({ children }: TabPanelsProps) {
   return <div className="mt-4">{children}</div>;
 }
 

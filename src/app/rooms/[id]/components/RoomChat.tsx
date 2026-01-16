@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Avatar } from '@/components/ui';
 
 interface Player {
@@ -15,7 +15,7 @@ interface Message {
   content: string;
   senderId: string;
   sender: Player;
-  timestamp: Date;
+  createdAt: string;
 }
 
 interface RoomChatProps {
@@ -24,47 +24,81 @@ interface RoomChatProps {
   players: Player[];
 }
 
-// Mock messages for demo
-const generateMockMessages = (players: Player[], currentUser: Player): Message[] => {
-  if (players.length < 2) return [];
-
-  const otherPlayers = players.filter((p) => p.id !== currentUser.id);
-  if (otherPlayers.length === 0) return [];
-
-  const messages: Message[] = [
-    {
-      id: '1',
-      content: 'Hey everyone! Ready for today\'s challenge?',
-      senderId: otherPlayers[0]?.id || '',
-      sender: otherPlayers[0] || currentUser,
-      timestamp: new Date(Date.now() - 3600000),
-    },
-    {
-      id: '2',
-      content: 'Let\'s do it! I\'m aiming for 3 problems today.',
-      senderId: currentUser.id,
-      sender: currentUser,
-      timestamp: new Date(Date.now() - 3000000),
-    },
-    {
-      id: '3',
-      content: 'I just finished Two Sum. Moving on to Binary Search now!',
-      senderId: otherPlayers[0]?.id || '',
-      sender: otherPlayers[0] || currentUser,
-      timestamp: new Date(Date.now() - 1800000),
-    },
-  ];
-
-  return messages;
-};
+const POLL_INTERVAL = 3000; // Poll every 3 seconds
 
 export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
-  const [messages, setMessages] = useState<Message[]>(() =>
-    generateMockMessages(players, currentUser)
-  );
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageIdRef = useRef<string | null>(null);
+  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Fetch messages
+  const fetchMessages = useCallback(async (isInitial = false) => {
+    try {
+      const url = new URL(`/api/rooms/${roomId}/messages`, window.location.origin);
+      if (!isInitial && lastMessageIdRef.current) {
+        url.searchParams.set('after', lastMessageIdRef.current);
+      }
+
+      const response = await fetch(url.toString());
+      if (response.ok) {
+        const data = await response.json();
+        const newMessages: Message[] = data.messages || [];
+
+        if (newMessages.length > 0) {
+          lastMessageIdRef.current = newMessages[newMessages.length - 1].id;
+
+          if (isInitial) {
+            setMessages(newMessages);
+          } else {
+            setMessages((prev) => {
+              // Avoid duplicates
+              const existingIds = new Set(prev.map(m => m.id));
+              const uniqueNewMessages = newMessages.filter(m => !existingIds.has(m.id));
+              return [...prev, ...uniqueNewMessages];
+            });
+          }
+        }
+        setError(null);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to load messages');
+      }
+    } catch (err) {
+      console.error('Failed to fetch messages:', err);
+      setError('Failed to connect to server');
+    } finally {
+      if (isInitial) {
+        setLoading(false);
+      }
+    }
+  }, [roomId]);
+
+  // Initial fetch and polling
+  useEffect(() => {
+    fetchMessages(true);
+
+    // Start polling
+    const poll = () => {
+      pollTimeoutRef.current = setTimeout(async () => {
+        await fetchMessages(false);
+        poll();
+      }, POLL_INTERVAL);
+    };
+    poll();
+
+    return () => {
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current);
+      }
+    };
+  }, [fetchMessages]);
+
+  // Scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -73,19 +107,50 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  // Send message
+  const handleSend = async () => {
+    if (!input.trim() || sending) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: input,
+    const messageContent = input.trim();
+    setInput('');
+    setSending(true);
+
+    // Optimistic update
+    const optimisticMessage: Message = {
+      id: `temp-${Date.now()}`,
+      content: messageContent,
       senderId: currentUser.id,
       sender: currentUser,
-      timestamp: new Date(),
+      createdAt: new Date().toISOString(),
     };
+    setMessages((prev) => [...prev, optimisticMessage]);
 
-    setMessages((prev) => [...prev, newMessage]);
-    setInput('');
+    try {
+      const response = await fetch(`/api/rooms/${roomId}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: messageContent }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Replace optimistic message with real one
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMessage.id ? data.message : m))
+        );
+        lastMessageIdRef.current = data.message.id;
+      } else {
+        // Remove optimistic message on error
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticMessage.id));
+        setError('Failed to send message');
+      }
+    } catch (err) {
+      console.error('Failed to send message:', err);
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMessage.id));
+      setError('Failed to send message');
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -95,11 +160,12 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatTime = (dateStr: string) => {
+    return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -113,30 +179,42 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-slate-800/30 rounded-2xl border border-slate-700">
+    <div className="flex flex-col h-[600px] bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)]">
       {/* Chat Header */}
-      <div className="px-6 py-4 border-b border-slate-700">
+      <div className="px-6 py-4 border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <ChatIcon className="w-5 h-5 text-indigo-400" />
-            <h3 className="font-semibold text-white">Room Chat</h3>
+            <h3 className="font-semibold text-[var(--color-text-primary)]">Room Chat</h3>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="text-sm text-slate-400">{players.length} online</span>
+            <span className="text-sm text-[var(--color-text-muted)]">{players.length} members</span>
           </div>
         </div>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="px-4 py-2 bg-red-500/10 border-b border-red-500/20">
+          <p className="text-sm text-red-400">{error}</p>
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-[var(--color-text-muted)] mt-2">Loading messages...</p>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-16 h-16 bg-slate-700/50 rounded-2xl flex items-center justify-center mb-4">
-              <ChatIcon className="w-8 h-8 text-slate-500" />
+            <div className="w-16 h-16 bg-[var(--color-bg-hover)] rounded-2xl flex items-center justify-center mb-4">
+              <ChatIcon className="w-8 h-8 text-[var(--color-text-muted)]" />
             </div>
-            <h4 className="text-white font-medium mb-1">No messages yet</h4>
-            <p className="text-sm text-slate-400">Start the conversation!</p>
+            <h4 className="text-[var(--color-text-primary)] font-medium mb-1">No messages yet</h4>
+            <p className="text-sm text-[var(--color-text-muted)]">Start the conversation!</p>
           </div>
         ) : (
           <>
@@ -144,14 +222,14 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
               const isCurrentUser = message.senderId === currentUser.id;
               const showDate =
                 index === 0 ||
-                formatDate(message.timestamp) !== formatDate(messages[index - 1].timestamp);
+                formatDate(message.createdAt) !== formatDate(messages[index - 1].createdAt);
 
               return (
                 <div key={message.id}>
                   {showDate && (
                     <div className="flex justify-center my-4">
-                      <span className="px-3 py-1 bg-slate-700/50 rounded-full text-xs text-slate-400">
-                        {formatDate(message.timestamp)}
+                      <span className="px-3 py-1 bg-[var(--color-bg-hover)] rounded-full text-xs text-[var(--color-text-muted)]">
+                        {formatDate(message.createdAt)}
                       </span>
                     </div>
                   )}
@@ -170,25 +248,26 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
                       }`}
                     >
                       {!isCurrentUser && (
-                        <span className="text-xs text-slate-400 mb-1 block">
+                        <span className="text-xs text-[var(--color-text-muted)] mb-1 block">
                           {message.sender.name || message.sender.username}
                         </span>
                       )}
                       <div
                         className={`rounded-2xl px-4 py-2.5 ${
                           isCurrentUser
-                            ? 'bg-indigo-500 text-white rounded-br-md'
-                            : 'bg-slate-700 text-slate-200 rounded-bl-md'
-                        }`}
+                            ? 'bg-indigo-500 text-[var(--color-text-primary)] rounded-br-md'
+                            : 'bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)] rounded-bl-md'
+                        } ${message.id.startsWith('temp-') ? 'opacity-70' : ''}`}
                       >
                         <p className="text-sm leading-relaxed">{message.content}</p>
                       </div>
                       <span
-                        className={`text-xs text-slate-500 mt-1 block ${
+                        className={`text-xs text-[var(--color-text-muted)] mt-1 block ${
                           isCurrentUser ? 'text-right' : ''
                         }`}
                       >
-                        {formatTime(message.timestamp)}
+                        {formatTime(message.createdAt)}
+                        {message.id.startsWith('temp-') && ' • Sending...'}
                       </span>
                     </div>
                   </div>
@@ -201,7 +280,7 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t border-[var(--color-border)]">
         <div className="flex gap-3">
           <input
             type="text"
@@ -209,18 +288,19 @@ export function RoomChat({ roomId, currentUser, players }: RoomChatProps) {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
-            className="flex-1 bg-slate-700 border-none rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            disabled={sending}
+            className="flex-1 bg-[var(--color-bg-hover)] border-none rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-50"
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || sending}
             className="px-5 py-3 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
           >
-            <SendIcon className="w-5 h-5 text-white" />
+            <SendIcon className="w-5 h-5 text-[var(--color-text-primary)]" />
           </button>
         </div>
-        <p className="text-xs text-slate-500 mt-2 text-center">
-          Messages are stored locally for demo purposes
+        <p className="text-xs text-[var(--color-text-muted)] mt-2 text-center">
+          Messages are saved and synced automatically
         </p>
       </div>
     </div>

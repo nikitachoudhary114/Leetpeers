@@ -636,13 +636,13 @@ export function LearningWidget() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setSelectedTopic(null)}
-            className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-[var(--color-bg-tertiary)] rounded-lg transition-colors"
           >
-            <BackIcon className="w-5 h-5 text-slate-400" />
+            <BackIcon className="w-5 h-5 text-[var(--color-text-muted)]" />
           </button>
           <div>
-            <h2 className="text-xl font-bold text-white">{selectedTopic.title}</h2>
-            <p className="text-sm text-slate-400">{selectedTopic.description}</p>
+            <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{selectedTopic.title}</h2>
+            <p className="text-sm text-[var(--color-text-muted)]">{selectedTopic.description}</p>
           </div>
         </div>
 
@@ -654,8 +654,8 @@ export function LearningWidget() {
               onClick={() => setLanguage(lang.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 language === lang.id
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                  ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                  : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
               }`}
             >
               {lang.label}
@@ -670,30 +670,30 @@ export function LearningWidget() {
               <button
                 key={lesson.id}
                 onClick={() => setSelectedLesson(lesson)}
-                className="w-full bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-left hover:border-indigo-500/50 hover:bg-slate-800/70 transition-all group"
+                className="w-full bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 text-left hover:border-indigo-500/50 hover:bg-[var(--color-bg-tertiary)]/70 transition-all group"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center">
                     <span className="text-indigo-400 font-semibold">{index + 1}</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-white group-hover:text-indigo-400 transition-colors">
+                    <h3 className="font-medium text-[var(--color-text-primary)] group-hover:text-indigo-400 transition-colors">
                       {lesson.title}
                     </h3>
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="text-sm text-[var(--color-text-muted)] mt-1">
                       {lesson.practiceProblems.length} practice problems
                     </p>
                   </div>
-                  <ChevronRightIcon className="w-5 h-5 text-slate-400 group-hover:text-indigo-400" />
+                  <ChevronRightIcon className="w-5 h-5 text-[var(--color-text-muted)] group-hover:text-indigo-400" />
                 </div>
               </button>
             ))}
           </div>
         ) : (
-          <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-8 text-center">
-            <BookIcon className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">Coming Soon</h3>
-            <p className="text-sm text-slate-400">
+          <div className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-8 text-center">
+            <BookIcon className="w-12 h-12 text-[var(--color-text-muted)] mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-2">Coming Soon</h3>
+            <p className="text-sm text-[var(--color-text-muted)]">
               Lessons for this topic are being prepared. Check back soon!
             </p>
           </div>
@@ -706,15 +706,15 @@ export function LearningWidget() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Learn DSA</h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Learn DSA</h2>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">
           Master Data Structures & Algorithms with interactive lessons
         </p>
       </div>
 
       {/* Language Selector */}
-      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-        <p className="text-sm text-slate-400 mb-3">Select your preferred language:</p>
+      <div className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4">
+        <p className="text-sm text-[var(--color-text-muted)] mb-3">Select your preferred language:</p>
         <div className="flex gap-2">
           {languages.map((lang) => (
             <button
@@ -722,8 +722,8 @@ export function LearningWidget() {
               onClick={() => setLanguage(lang.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 language === lang.id
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600'
+                  ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                  : 'bg-[var(--color-bg-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]/80'
               }`}
             >
               {lang.label}
@@ -738,7 +738,7 @@ export function LearningWidget() {
           <button
             key={topic.id}
             onClick={() => setSelectedTopic(topic)}
-            className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 text-left hover:border-indigo-500/50 hover:bg-slate-800/70 transition-all group"
+            className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-5 text-left hover:border-indigo-500/50 hover:bg-[var(--color-bg-tertiary)]/70 transition-all group"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center">
@@ -752,13 +752,13 @@ export function LearningWidget() {
                 {topic.difficulty}
               </span>
             </div>
-            <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors">
+            <h3 className="font-semibold text-[var(--color-text-primary)] group-hover:text-indigo-400 transition-colors">
               {topic.title}
             </h3>
-            <p className="text-sm text-slate-400 mt-1 line-clamp-2">
+            <p className="text-sm text-[var(--color-text-muted)] mt-1 line-clamp-2">
               {topic.description}
             </p>
-            <div className="flex items-center gap-4 mt-4 text-xs text-slate-500">
+            <div className="flex items-center gap-4 mt-4 text-xs text-[var(--color-text-muted)]">
               <span className="flex items-center gap-1">
                 <ClockIcon className="w-4 h-4" />
                 {topic.estimatedTime}
@@ -779,8 +779,8 @@ export function LearningWidget() {
             <SparklesIcon className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">AI-Powered Learning</h3>
-            <p className="text-sm text-slate-400 mt-1">
+            <h3 className="font-semibold text-[var(--color-text-primary)]">AI-Powered Learning</h3>
+            <p className="text-sm text-[var(--color-text-muted)] mt-1">
               Stuck on a concept? Ask our AI Assistant for personalized explanations and examples!
             </p>
           </div>
@@ -816,19 +816,19 @@ function LessonView({
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-[var(--color-bg-tertiary)] rounded-lg transition-colors"
         >
-          <BackIcon className="w-5 h-5 text-slate-400" />
+          <BackIcon className="w-5 h-5 text-[var(--color-text-muted)]" />
         </button>
         <div className="flex-1">
-          <div className="flex items-center gap-2 text-sm text-slate-400 mb-1">
-            <button onClick={onBackToTopics} className="hover:text-white">
+          <div className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-1">
+            <button onClick={onBackToTopics} className="hover:text-[var(--color-text-primary)]">
               {topic.title}
             </button>
             <span>/</span>
-            <span className="text-white">{lesson.title}</span>
+            <span className="text-[var(--color-text-primary)]">{lesson.title}</span>
           </div>
-          <h2 className="text-xl font-bold text-white">{lesson.title}</h2>
+          <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{lesson.title}</h2>
         </div>
       </div>
 
@@ -840,8 +840,8 @@ function LessonView({
             onClick={() => onLanguageChange(lang.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               language === lang.id
-                ? 'bg-indigo-500 text-white'
-                : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
             }`}
           >
             {lang.label}
@@ -850,15 +850,15 @@ function LessonView({
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-slate-800/50 rounded-lg">
+      <div className="flex gap-1 p-1 bg-[var(--color-bg-tertiary)] rounded-lg">
         {(['content', 'code', 'practice'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`flex-1 px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${
               activeTab === tab
-                ? 'bg-slate-700 text-white'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
             }`}
           >
             {tab === 'content' ? 'Learn' : tab === 'code' ? 'Code Example' : 'Practice'}
@@ -868,24 +868,24 @@ function LessonView({
 
       {/* Content */}
       {activeTab === 'content' && (
-        <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-          <pre className="text-sm text-slate-300 whitespace-pre-wrap font-sans leading-relaxed">
+        <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+          <pre className="text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap font-sans leading-relaxed">
             {lesson.content[language]}
           </pre>
         </div>
       )}
 
       {activeTab === 'code' && (
-        <div className="bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden">
-          <div className="bg-slate-900/50 px-4 py-2 border-b border-slate-700 flex items-center justify-between">
-            <span className="text-sm text-slate-400">
+        <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] overflow-hidden">
+          <div className="bg-[var(--color-bg-primary)]/50 px-4 py-2 border-b border-[var(--color-border)] flex items-center justify-between">
+            <span className="text-sm text-[var(--color-text-muted)]">
               {languages.find((l) => l.id === language)?.label} Example
             </span>
             <button className="text-xs text-indigo-400 hover:text-indigo-300">
               Copy Code
             </button>
           </div>
-          <pre className="p-4 text-sm text-slate-300 overflow-x-auto">
+          <pre className="p-4 text-sm text-[var(--color-text-secondary)] overflow-x-auto">
             <code>{lesson.codeExample[language]}</code>
           </pre>
         </div>
@@ -893,20 +893,20 @@ function LessonView({
 
       {activeTab === 'practice' && (
         <div className="space-y-4">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[var(--color-text-muted)]">
             Practice these problems to reinforce your learning:
           </p>
           <div className="space-y-3">
             {lesson.practiceProblems.map((problem, index) => (
               <div
                 key={index}
-                className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 flex items-center justify-between"
+                className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
-                    <span className="text-sm text-slate-400">{index + 1}</span>
+                  <div className="w-8 h-8 rounded-lg bg-[var(--color-bg-hover)] flex items-center justify-center">
+                    <span className="text-sm text-[var(--color-text-muted)]">{index + 1}</span>
                   </div>
-                  <span className="text-white font-medium">{problem}</span>
+                  <span className="text-[var(--color-text-primary)] font-medium">{problem}</span>
                 </div>
                 <button className="px-3 py-1.5 bg-indigo-500/20 text-indigo-400 rounded-lg text-sm font-medium hover:bg-indigo-500/30 transition-colors">
                   Solve

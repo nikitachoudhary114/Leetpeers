@@ -63,7 +63,7 @@ export function RoomContainer({ room, currentUserId }: RoomContainerProps) {
   const renderContent = () => {
     switch (activeTab) {
       case 'problems':
-        return <ProblemsSection />;
+        return <ProblemsSection roomId={room.id} />;
       case 'solutions':
         return <SolutionsSection />;
       case 'chat':
@@ -76,7 +76,7 @@ export function RoomContainer({ room, currentUserId }: RoomContainerProps) {
         );
       case 'video':
         return (
-          <VideoSection players={room.players} currentUserId={currentUserId} />
+          <VideoSection roomId={room.id} players={room.players} currentUserId={currentUserId} />
         );
       case 'members':
         return (
@@ -97,14 +97,14 @@ export function RoomContainer({ room, currentUserId }: RoomContainerProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       {/* Header */}
       <RoomHeader room={room} userId={currentUserId} />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto p-6">
         {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-slate-900/50 rounded-xl mb-6 overflow-x-auto">
+        <div className="flex gap-1 p-1 bg-[var(--color-bg-primary)]/50 rounded-xl mb-6 overflow-x-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -114,14 +114,14 @@ export function RoomContainer({ room, currentUserId }: RoomContainerProps) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? 'bg-slate-800 text-white shadow-lg'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    ? 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] shadow-lg'
+                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]/50'
                 }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
                 {tab.id === 'members' && (
-                  <span className="ml-1 px-2 py-0.5 bg-slate-700 rounded-full text-xs">
+                  <span className="ml-1 px-2 py-0.5 bg-[var(--color-bg-hover)] rounded-full text-xs">
                     {room._count.players}
                   </span>
                 )}

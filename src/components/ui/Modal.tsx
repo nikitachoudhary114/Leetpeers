@@ -51,20 +51,20 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   return createPortal(
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between mb-4">
-          <h2 id="modal-title" className="text-xl font-semibold">
+          <h2 id="modal-title" className="text-xl font-semibold text-[var(--color-text-primary)]">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+            className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors p-1 rounded-md hover:bg-[var(--color-bg-hover)]"
             aria-label="Close modal"
           >
             <svg

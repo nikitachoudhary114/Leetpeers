@@ -9,10 +9,10 @@ interface AlertProps {
 
 export function Alert({ type, children, className = '', onClose }: AlertProps) {
   const styles = {
-    success: 'bg-green-50 border-green-200 text-green-800',
-    error: 'bg-red-50 border-red-200 text-red-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800',
+    success: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+    error: 'bg-red-500/10 border-red-500/30 text-red-400',
+    warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+    info: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
   };
 
   const icons = {
@@ -56,7 +56,7 @@ export function Alert({ type, children, className = '', onClose }: AlertProps) {
 
   return (
     <div
-      className={`border rounded-md p-4 flex items-start gap-3 ${styles[type]} ${className}`}
+      className={`border rounded-lg p-4 flex items-start gap-3 ${styles[type]} ${className}`}
       role="alert"
     >
       <span className="flex-shrink-0">{icons[type]}</span>
@@ -64,7 +64,7 @@ export function Alert({ type, children, className = '', onClose }: AlertProps) {
       {onClose && (
         <button
           onClick={onClose}
-          className="flex-shrink-0 ml-auto -mr-1 -mt-1 p-1 rounded hover:bg-black/5 transition-colors"
+          className="flex-shrink-0 ml-auto -mr-1 -mt-1 p-1 rounded hover:bg-white/10 transition-colors"
           aria-label="Dismiss"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

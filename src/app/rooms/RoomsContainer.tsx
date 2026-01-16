@@ -118,8 +118,8 @@ export default function RoomsContainer({ initialRooms, userId }: RoomsContainerP
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Your Rooms</h1>
-          <p className="text-slate-400 mt-1">Manage your study groups and track progress together</p>
+          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Your Rooms</h1>
+          <p className="text-[var(--color-text-muted)] mt-1">Manage your study groups and track progress together</p>
         </div>
         <div className="flex gap-3">
           <button
@@ -127,7 +127,7 @@ export default function RoomsContainer({ initialRooms, userId }: RoomsContainerP
               clearMessages();
               setIsJoinModalOpen(true);
             }}
-            className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-medium transition-colors border border-slate-700"
+            className="px-5 py-2.5 bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded-xl font-medium transition-colors border border-[var(--color-border)]"
           >
             Join Room
           </button>
@@ -136,7 +136,7 @@ export default function RoomsContainer({ initialRooms, userId }: RoomsContainerP
               clearMessages();
               setIsCreateModalOpen(true);
             }}
-            className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 text-white rounded-xl font-medium transition-all"
+            className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 text-[var(--color-text-primary)] rounded-xl font-medium transition-all"
           >
             Create Room
           </button>
@@ -169,25 +169,25 @@ export default function RoomsContainer({ initialRooms, userId }: RoomsContainerP
       {/* Room List or Empty State */}
       {rooms.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-20 h-20 mx-auto bg-slate-800 rounded-2xl flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-20 h-20 mx-auto bg-[var(--color-bg-tertiary)] rounded-2xl flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">No rooms yet</h3>
-          <p className="text-slate-400 mb-8 max-w-sm mx-auto">
+          <h3 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">No rooms yet</h3>
+          <p className="text-[var(--color-text-muted)] mb-8 max-w-sm mx-auto">
             Create a new room or join an existing one to start practicing with others.
           </p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => setIsJoinModalOpen(true)}
-              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-medium transition-colors border border-slate-700"
+              className="px-6 py-3 bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded-xl font-medium transition-colors border border-[var(--color-border)]"
             >
               Join Room
             </button>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 text-white rounded-xl font-medium transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/25 text-[var(--color-text-primary)] rounded-xl font-medium transition-all"
             >
               Create Room
             </button>
@@ -246,14 +246,14 @@ function RoomCard({
   return (
     <div
       onClick={onClick}
-      className="group bg-slate-900/50 rounded-2xl border border-slate-800 p-6 cursor-pointer hover:border-indigo-500/50 hover:bg-slate-900/70 transition-all duration-300"
+      className="group bg-[var(--color-bg-primary)]/50 rounded-2xl border border-[var(--color-border)] p-6 cursor-pointer hover:border-indigo-500/50 hover:bg-[var(--color-bg-primary)]/70 transition-all duration-300"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-lg text-white truncate group-hover:text-indigo-300 transition-colors">
+          <h3 className="font-semibold text-lg text-[var(--color-text-primary)] truncate group-hover:text-indigo-300 transition-colors">
             {room.name || 'Unnamed Room'}
           </h3>
-          <p className="text-sm text-slate-500 font-mono">Code: {room.code}</p>
+          <p className="text-sm text-[var(--color-text-muted)] font-mono">Code: {room.code}</p>
         </div>
         {isOwner && (
           <span className="bg-indigo-500/20 text-indigo-300 text-xs font-medium px-2.5 py-1 rounded-lg flex-shrink-0 ml-2">
@@ -262,7 +262,7 @@ function RoomCard({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-5">
+      <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--color-text-muted)] mb-5">
         <span className="flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -288,14 +288,14 @@ function RoomCard({
           {room.players.slice(0, 5).map((player) => (
             <div
               key={player.id}
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-slate-900 flex items-center justify-center text-xs font-medium text-white"
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-[var(--color-bg-primary)] flex items-center justify-center text-xs font-medium text-[var(--color-text-primary)]"
               title={player.username || 'User'}
             >
               {player.username?.charAt(0).toUpperCase() || '?'}
             </div>
           ))}
           {room.players.length > 5 && (
-            <div className="w-8 h-8 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-xs text-slate-300 font-medium">
+            <div className="w-8 h-8 rounded-full bg-[var(--color-bg-hover)] border-2 border-[var(--color-bg-primary)] flex items-center justify-center text-xs text-[var(--color-text-secondary)] font-medium">
               +{room.players.length - 5}
             </div>
           )}
@@ -358,11 +358,11 @@ function CreateRoomModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-      <div className="relative bg-slate-900 rounded-2xl border border-slate-800 p-6 w-full max-w-md shadow-2xl animate-scale-in">
-        <h2 className="text-xl font-bold text-white mb-4">Create a Room</h2>
+      <div className="relative bg-[var(--color-bg-primary)] rounded-2xl border border-[var(--color-border)] p-6 w-full max-w-md shadow-2xl animate-scale-in">
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)] mb-4">Create a Room</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
               Room Name
             </label>
             <input
@@ -373,19 +373,19 @@ function CreateRoomModal({
                 setError(null);
               }}
               placeholder="e.g., Daily LeetCode Grind"
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               autoFocus
             />
             {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[var(--color-text-muted)]">
             You&apos;ll receive a unique 6-character code to share with others.
           </p>
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors"
               disabled={isLoading}
             >
               Cancel
@@ -393,7 +393,7 @@ function CreateRoomModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
             >
               {isLoading ? 'Creating...' : 'Create Room'}
             </button>
@@ -449,11 +449,11 @@ function JoinRoomModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
-      <div className="relative bg-slate-900 rounded-2xl border border-slate-800 p-6 w-full max-w-md shadow-2xl animate-scale-in">
-        <h2 className="text-xl font-bold text-white mb-4">Join a Room</h2>
+      <div className="relative bg-[var(--color-bg-primary)] rounded-2xl border border-[var(--color-border)] p-6 w-full max-w-md shadow-2xl animate-scale-in">
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)] mb-4">Join a Room</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
               Room Code
             </label>
             <input
@@ -465,19 +465,19 @@ function JoinRoomModal({
               }}
               placeholder="Enter 6-character code"
               maxLength={6}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono tracking-widest text-center text-lg"
+              className="w-full px-4 py-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono tracking-widest text-center text-lg"
               autoFocus
             />
             {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[var(--color-text-muted)]">
             Ask the room owner for the code to join their study group.
           </p>
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors"
               disabled={isLoading}
             >
               Cancel
@@ -485,7 +485,7 @@ function JoinRoomModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
             >
               {isLoading ? 'Joining...' : 'Join Room'}
             </button>

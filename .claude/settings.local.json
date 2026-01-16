@@ -35,7 +35,10 @@
       "Bash(git checkout:*)",
       "Bash(git branch:*)",
       "Bash(git config:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx playwright:*)",
+      "Bash(node test-badge.mjs:*)"
     ]
   }
 }

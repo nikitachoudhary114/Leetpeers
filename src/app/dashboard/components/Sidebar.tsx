@@ -45,7 +45,7 @@ const navItems = [
 
 export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   return (
-    <aside className="w-64 bg-slate-900/50 border-r border-slate-800 min-h-[calc(100vh-4rem)] p-4 hidden lg:block">
+    <aside className="w-64 bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)] min-h-[calc(100vh-4rem)] p-4 hidden lg:block transition-colors duration-300">
       <nav className="space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -56,8 +56,8 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
               onClick={() => onSectionChange(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-[var(--color-text-primary)] border border-indigo-500/30'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
               }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-400' : ''}`} />
@@ -68,8 +68,8 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       </nav>
 
       <div className="mt-8 p-4 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl border border-indigo-500/20">
-        <h3 className="text-sm font-semibold text-white mb-2">Pro Tip</h3>
-        <p className="text-xs text-slate-400">
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-2">Pro Tip</h3>
+        <p className="text-xs text-[var(--color-text-muted)]">
           Connect your LeetCode account to track your progress and compete with peers!
         </p>
       </div>
@@ -79,7 +79,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
 
 export function MobileSidebar({ activeSection, onSectionChange }: SidebarProps) {
   return (
-    <div className="lg:hidden flex gap-1 p-2 bg-slate-900/50 border-b border-slate-800 overflow-x-auto">
+    <div className="lg:hidden flex gap-1 p-2 bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)] overflow-x-auto transition-colors duration-300">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeSection === item.id;
@@ -89,8 +89,8 @@ export function MobileSidebar({ activeSection, onSectionChange }: SidebarProps) 
             onClick={() => onSectionChange(item.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               isActive
-                ? 'bg-indigo-500/20 text-white border border-indigo-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                ? 'bg-indigo-500/20 text-[var(--color-text-primary)] border border-indigo-500/30'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
             }`}
           >
             <Icon className="w-4 h-4" />

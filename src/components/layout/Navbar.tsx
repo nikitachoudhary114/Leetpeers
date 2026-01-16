@@ -19,7 +19,7 @@ export function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
+    <nav className="sticky top-0 z-50 bg-[var(--color-bg-secondary)]/80 backdrop-blur-xl border-b border-[var(--color-border)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -27,7 +27,7 @@ export function Navbar() {
             <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/30 transition-shadow">
               <span className="text-white font-bold">L</span>
             </div>
-            <span className="text-lg font-bold text-white hidden sm:block">
+            <span className="text-lg font-bold text-[var(--color-text-primary)] hidden sm:block">
               Leet<span className="text-indigo-400">Peers</span>
             </span>
           </Link>
@@ -42,8 +42,8 @@ export function Navbar() {
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     isActive(item.href)
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                      ? 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)]'
+                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-tertiary)]/50'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -57,20 +57,20 @@ export function Navbar() {
           <div className="relative">
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--color-bg-tertiary)] transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
                 {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium text-white truncate max-w-[120px]">
+                <p className="text-sm font-medium text-[var(--color-text-primary)] truncate max-w-[120px]">
                   {session?.user?.name || 'User'}
                 </p>
-                <p className="text-xs text-slate-400 truncate max-w-[120px]">
+                <p className="text-xs text-[var(--color-text-muted)] truncate max-w-[120px]">
                   {session?.user?.email}
                 </p>
               </div>
-              <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -81,16 +81,16 @@ export function Navbar() {
                   className="fixed inset-0 z-10"
                   onClick={() => setIsProfileOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-xl border border-slate-700 shadow-xl z-20 overflow-hidden">
-                  <div className="p-3 border-b border-slate-700">
-                    <p className="text-sm font-medium text-white">{session?.user?.name}</p>
-                    <p className="text-xs text-slate-400">{session?.user?.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] shadow-xl z-20 overflow-hidden">
+                  <div className="p-3 border-b border-[var(--color-border)]">
+                    <p className="text-sm font-medium text-[var(--color-text-primary)]">{session?.user?.name}</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">{session?.user?.email}</p>
                   </div>
                   <div className="p-2">
                     <Link
                       href="/dashboard"
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors"
                     >
                       <DashboardIcon className="w-4 h-4" />
                       Dashboard
@@ -98,7 +98,7 @@ export function Navbar() {
                     <Link
                       href="/profile"
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors"
                     >
                       <ProfileIcon className="w-4 h-4" />
                       Your Profile
@@ -106,13 +106,13 @@ export function Navbar() {
                     <Link
                       href="/rooms"
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 rounded-lg transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors"
                     >
                       <RoomsIcon className="w-4 h-4" />
                       Your Rooms
                     </Link>
                   </div>
-                  <div className="p-2 border-t border-slate-700">
+                  <div className="p-2 border-t border-[var(--color-border)]">
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
                       className="flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors w-full"

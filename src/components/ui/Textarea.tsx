@@ -17,7 +17,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
           >
             {label}
           </label>
@@ -25,8 +25,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           id={textareaId}
-          className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors ${
-            error ? 'border-red-500' : 'border-gray-300'
+          className={`w-full bg-[var(--color-bg-tertiary)] border rounded-lg px-3 py-2.5 text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-colors ${
+            error ? 'border-red-500' : 'border-[var(--color-border)] hover:border-[var(--color-border-hover)]'
           } ${className}`}
           aria-invalid={error ? 'true' : 'false'}
           aria-describedby={
@@ -41,14 +41,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {error && (
           <p
             id={`${textareaId}-error`}
-            className="mt-1 text-sm text-red-600"
+            className="mt-1 text-sm text-red-400"
             role="alert"
           >
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p id={`${textareaId}-helper`} className="mt-1 text-sm text-gray-500">
+          <p id={`${textareaId}-helper`} className="mt-1 text-sm text-[var(--color-text-muted)]">
             {helperText}
           </p>
         )}

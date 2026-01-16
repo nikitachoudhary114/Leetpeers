@@ -36,12 +36,15 @@ model User {
   problemsSolved  Int  @default(0)
   lastTotalSolved Int?
 
-  rooms              Room[]              @relation("RoomPlayers")
-  ownedRooms         Room[]              @relation("RoomOwner")
-  Account            Account[]
-  Session            Session[]
-  StreakLog          StreakLog[]
+  rooms               Room[]               @relation("RoomPlayers")
+  ownedRooms          Room[]               @relation("RoomOwner")
+  Account             Account[]
+  Session             Session[]
+  StreakLog           StreakLog[]
   ProfileVerification ProfileVerification[]
+  AIConversations     AIConversation[]
+  RoomMessages        RoomMessage[]
+  CodeSubmissions     CodeSubmission[]
 }
 
 model ProfileVerification {
@@ -70,8 +73,10 @@ model Room {
   ownerId String
   owner   User   @relation("RoomOwner", fields: [ownerId], references: [id])
 
-  players   User[]      @relation("RoomPlayers")
-  StreakLog StreakLog[]
+  players         User[]           @relation("RoomPlayers")
+  StreakLog       StreakLog[]
+  RoomMessages    RoomMessage[]
+  CodeSubmissions CodeSubmission[]
 }
 
 // NextAuth tables
@@ -121,4 +126,83 @@ model StreakLog {
   room Room @relation(fields: [roomId], references: [id])
 
   @@unique([userId, roomId, date])
+}
+
+// AI Chatbot - Conversations
+model AIConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AIMessage[]
+
+  @@index([userId])
+}
+
+// AI Chatbot - Messages
+model AIMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // 'user' | 'assistant'
+  content        String   @db.Text
+  createdAt      DateTime @default(now())
+
+  conversation AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+// Real-time Room Chat Messages
+model RoomMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([senderId])
+}
+
+// Code Submissions
+model CodeSubmission {
+  id          String   @id @default(cuid())
+  userId      String
+  roomId      String?
+  problemId   Int
+  problemSlug String
+  language    String   // 'python' | 'javascript' | 'java' | 'cpp'
+  code        String   @db.Text
+  status      String   // 'pending' | 'running' | 'accepted' | 'wrong_answer' | 'error' | 'timeout'
+  runtime     Int?     // ms
+  memory      Int?     // KB
+  testsPassed Int?
+  totalTests  Int?
+  output      String?  @db.Text
+  error       String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([roomId])
+  @@index([problemSlug])
+}
+
+// Test Cases for Problems
+model TestCase {
+  id          String  @id @default(cuid())
+  problemSlug String
+  input       String  @db.Text
+  expected    String  @db.Text
+  isHidden    Boolean @default(false)
+
+  @@index([problemSlug])
 }

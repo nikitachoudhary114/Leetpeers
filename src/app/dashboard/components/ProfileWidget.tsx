@@ -29,54 +29,54 @@ export function ProfileWidget({ user }: ProfileWidgetProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <h2 className="text-xl font-bold text-white">Your Profile</h2>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Your Profile</h2>
         <Link
           href="/profile"
-          className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+          className="text-sm text-indigo-500 hover:text-indigo-400 transition-colors"
         >
           Edit Profile
         </Link>
       </div>
 
       {/* Profile Card */}
-      <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl p-6 border border-[var(--color-border)] transition-colors duration-300">
         <div className="flex items-center gap-4 mb-6">
           <Avatar src={user.avatarUrl} name={user.name} size="xl" />
           <div>
-            <h3 className="text-lg font-semibold text-white">{user.name || 'Anonymous'}</h3>
-            <p className="text-slate-400">@{user.username || 'username'}</p>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">{user.name || 'Anonymous'}</h3>
+            <p className="text-[var(--color-text-muted)]">@{user.username || 'username'}</p>
             {user.country && (
-              <p className="text-sm text-slate-500 mt-1">{user.country}</p>
+              <p className="text-sm text-[var(--color-text-disabled)] mt-1">{user.country}</p>
             )}
           </div>
         </div>
 
         {user.bio && (
-          <p className="text-slate-300 text-sm mb-6 leading-relaxed">{user.bio}</p>
+          <p className="text-[var(--color-text-secondary)] text-sm mb-6 leading-relaxed">{user.bio}</p>
         )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-slate-900/50 rounded-xl p-4 text-center">
+          <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-orange-400">{user.streakCount}</div>
-            <div className="text-xs text-slate-400 mt-1">Day Streak</div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">Day Streak</div>
           </div>
-          <div className="bg-slate-900/50 rounded-xl p-4 text-center">
+          <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
             <div className="text-2xl font-bold text-emerald-400">{user.problemsSolved}</div>
-            <div className="text-xs text-slate-400 mt-1">Solved</div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">Solved</div>
           </div>
-          <div className="bg-slate-900/50 rounded-xl p-4 text-center">
-            <div className="text-sm font-medium text-slate-300">{memberSince}</div>
-            <div className="text-xs text-slate-400 mt-1">Member Since</div>
+          <div className="bg-[var(--color-bg-hover)] rounded-xl p-4 text-center">
+            <div className="text-sm font-medium text-[var(--color-text-secondary)]">{memberSince}</div>
+            <div className="text-xs text-[var(--color-text-muted)] mt-1">Member Since</div>
           </div>
         </div>
 
         {/* LeetCode Connection */}
-        <div className="border-t border-slate-700 pt-4">
+        <div className="border-t border-[var(--color-border)] pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <LeetCodeIcon className="w-5 h-5 text-amber-500" />
-              <span className="text-sm text-slate-300">LeetCode</span>
+              <span className="text-sm text-[var(--color-text-secondary)]">LeetCode</span>
             </div>
             {user.leetcodeProfile ? (
               <div className="flex items-center gap-2">
@@ -85,7 +85,7 @@ export function ProfileWidget({ user }: ProfileWidgetProps) {
                   href={`https://leetcode.com/${user.leetcodeProfile}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-indigo-400 hover:text-indigo-300"
+                  className="text-sm text-indigo-500 hover:text-indigo-400"
                 >
                   @{user.leetcodeProfile}
                 </a>
@@ -103,14 +103,14 @@ export function ProfileWidget({ user }: ProfileWidgetProps) {
       <div className="grid grid-cols-2 gap-3">
         <Link
           href="/profile"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/50 rounded-xl border border-slate-700 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all"
+          className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
         >
           <EditIcon className="w-4 h-4" />
           Edit Profile
         </Link>
         <Link
           href="/rooms"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/50 rounded-xl border border-slate-700 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all"
+          className="flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
         >
           <RoomsIcon className="w-4 h-4" />
           View Rooms

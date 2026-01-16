@@ -22,15 +22,15 @@ export function RoomCard({ room, isOwner, onClick, onLeave }: RoomCardProps) {
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-md hover:border-gray-300 transition-all"
+      className="cursor-pointer hover:shadow-md hover:border-[var(--color-border)] transition-all"
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-lg text-gray-900 truncate">
+          <h3 className="font-semibold text-lg text-[var(--color-text-primary)] truncate">
             {room.name || 'Unnamed Room'}
           </h3>
-          <p className="text-sm text-gray-500 font-mono">Code: {room.code}</p>
+          <p className="text-sm text-[var(--color-text-muted)] font-mono">Code: {room.code}</p>
         </div>
         {isOwner && (
           <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded flex-shrink-0 ml-2">
@@ -39,7 +39,7 @@ export function RoomCard({ room, isOwner, onClick, onLeave }: RoomCardProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600 mb-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[var(--color-text-muted)] mb-4">
         <span className="flex items-center gap-1">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -79,7 +79,7 @@ export function RoomCard({ room, isOwner, onClick, onLeave }: RoomCardProps) {
           {room.players.slice(0, 5).map((player) => (
             <div
               key={player.id}
-              className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium overflow-hidden"
+              className="w-8 h-8 rounded-full bg-[var(--color-bg-tertiary)] border-2 border-[var(--color-bg-primary)] flex items-center justify-center text-xs font-medium overflow-hidden"
               title={player.username || 'User'}
             >
               {player.avatarUrl ? (
@@ -89,14 +89,14 @@ export function RoomCard({ room, isOwner, onClick, onLeave }: RoomCardProps) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-gray-600">
+                <span className="text-[var(--color-text-muted)]">
                   {player.username?.charAt(0).toUpperCase() || '?'}
                 </span>
               )}
             </div>
           ))}
           {room.players.length > 5 && (
-            <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs text-gray-600 font-medium">
+            <div className="w-8 h-8 rounded-full bg-[var(--color-bg-tertiary)] border-2 border-[var(--color-bg-primary)] flex items-center justify-center text-xs text-[var(--color-text-muted)] font-medium">
               +{room.players.length - 5}
             </div>
           )}

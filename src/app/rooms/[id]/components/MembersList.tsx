@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Avatar, Badge, Button, ProgressBar, Modal } from '@/components/ui';
+import { Avatar, Badge, Button, Modal } from '@/components/ui';
 
 interface Player {
   id: string;
@@ -126,51 +126,51 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
             <ChartIcon className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Team Statistics</h3>
-            <p className="text-sm text-slate-400">Combined progress of all members</p>
+            <h3 className="font-semibold text-[var(--color-text-primary)]">Team Statistics</h3>
+            <p className="text-sm text-[var(--color-text-muted)]">Combined progress of all members</p>
           </div>
         </div>
 
         {hasTeamStats ? (
           <div className="grid grid-cols-4 gap-4">
-            <div className="bg-slate-900/50 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-white">{teamStats.totalSolved}</div>
-              <div className="text-xs text-slate-400 mt-1">Total Solved</div>
+            <div className="bg-[var(--color-bg-primary)]/50 rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-[var(--color-text-primary)]">{teamStats.totalSolved}</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-1">Total Solved</div>
             </div>
-            <div className="bg-slate-900/50 rounded-xl p-4 text-center">
+            <div className="bg-[var(--color-bg-primary)]/50 rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-emerald-400">{teamStats.easySolved}</div>
-              <div className="text-xs text-slate-400 mt-1">Easy</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-1">Easy</div>
             </div>
-            <div className="bg-slate-900/50 rounded-xl p-4 text-center">
+            <div className="bg-[var(--color-bg-primary)]/50 rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-amber-400">{teamStats.mediumSolved}</div>
-              <div className="text-xs text-slate-400 mt-1">Medium</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-1">Medium</div>
             </div>
-            <div className="bg-slate-900/50 rounded-xl p-4 text-center">
+            <div className="bg-[var(--color-bg-primary)]/50 rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-red-400">{teamStats.hardSolved}</div>
-              <div className="text-xs text-slate-400 mt-1">Hard</div>
+              <div className="text-xs text-[var(--color-text-muted)] mt-1">Hard</div>
             </div>
           </div>
         ) : (
-          <div className="text-center py-4 text-slate-400 text-sm">
+          <div className="text-center py-4 text-[var(--color-text-muted)] text-sm">
             Loading team statistics...
           </div>
         )}
       </div>
 
-      <div className="bg-slate-800/30 rounded-2xl border border-slate-700">
+      <div className="bg-[var(--color-bg-tertiary)]/30 rounded-2xl border border-[var(--color-border)]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-700">
+        <div className="px-6 py-4 border-b border-[var(--color-border)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <UsersIcon className="w-5 h-5 text-indigo-400" />
-              <h3 className="font-semibold text-white">Members</h3>
+              <h3 className="font-semibold text-[var(--color-text-primary)]">Members</h3>
             </div>
-            <span className="text-sm text-slate-400">{players.length} members</span>
+            <span className="text-sm text-[var(--color-text-muted)]">{players.length} members</span>
           </div>
         </div>
 
         {/* Members List */}
-        <div className="divide-y divide-slate-700/50">
+        <div className="divide-y divide-[var(--color-border)]/50">
           {sortedPlayers.map((player) => {
             const stats = playerStats[player.id];
             const isLoading = loadingStats[player.id];
@@ -178,7 +178,7 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
             const isCurrentUser = player.id === currentUserId;
 
             return (
-              <div key={player.id} className="p-4 hover:bg-slate-800/30 transition-colors">
+              <div key={player.id} className="p-4 hover:bg-[var(--color-bg-tertiary)]/30 transition-colors">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <Avatar
@@ -190,7 +190,7 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-white truncate">
+                      <h4 className="font-medium text-[var(--color-text-primary)] truncate">
                         {player.name || player.username || 'Anonymous'}
                       </h4>
                       {isPlayerOwner && <Badge variant="premium" size="sm">Owner</Badge>}
@@ -199,7 +199,7 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
                       )}
                     </div>
 
-                    <p className="text-sm text-slate-400 mb-2">
+                    <p className="text-sm text-[var(--color-text-muted)] mb-2">
                       @{player.username || 'username'}
                     </p>
 
@@ -219,38 +219,38 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
                         </div>
 
                         {isLoading ? (
-                          <div className="text-xs text-slate-500">Loading stats...</div>
+                          <div className="text-xs text-[var(--color-text-muted)]">Loading stats...</div>
                         ) : stats ? (
                           <div className="space-y-2 mt-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm text-slate-400">Total:</span>
-                              <span className="text-sm font-semibold text-white">{stats.totalSolved} solved</span>
+                              <span className="text-sm text-[var(--color-text-muted)]">Total:</span>
+                              <span className="text-sm font-semibold text-[var(--color-text-primary)]">{stats.totalSolved} solved</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
                               <div className="text-center">
                                 <div className="text-lg font-bold text-emerald-400">
                                   {stats.easySolved}
                                 </div>
-                                <div className="text-xs text-slate-500">Easy</div>
+                                <div className="text-xs text-[var(--color-text-muted)]">Easy</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-lg font-bold text-amber-400">
                                   {stats.mediumSolved}
                                 </div>
-                                <div className="text-xs text-slate-500">Medium</div>
+                                <div className="text-xs text-[var(--color-text-muted)]">Medium</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-lg font-bold text-red-400">
                                   {stats.hardSolved}
                                 </div>
-                                <div className="text-xs text-slate-500">Hard</div>
+                                <div className="text-xs text-[var(--color-text-muted)]">Hard</div>
                               </div>
                             </div>
                           </div>
                         ) : null}
                       </div>
                     ) : (
-                      <div className="text-sm text-slate-500">
+                      <div className="text-sm text-[var(--color-text-muted)]">
                         LeetCode not connected
                       </div>
                     )}
@@ -260,7 +260,7 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
                       <FireIcon className="w-4 h-4 text-orange-400" />
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium text-[var(--color-text-primary)]">
                         {player.streakCount} days
                       </span>
                     </div>
@@ -290,9 +290,9 @@ export function MembersList({ roomId, players, ownerId, currentUserId }: Members
         title="Remove Member"
       >
         <div className="space-y-4">
-          <p className="text-slate-300">
+          <p className="text-[var(--color-text-secondary)]">
             Are you sure you want to remove{' '}
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-[var(--color-text-primary)]">
               {kickConfirm?.name || kickConfirm?.username}
             </span>{' '}
             from this room?

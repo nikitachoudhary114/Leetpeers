@@ -61,7 +61,7 @@ export function CreateRoomModal({
           error={error || undefined}
           autoFocus
         />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--color-text-muted)]">
           You&apos;ll receive a unique room code to share with others.
         </p>
         <div className="flex justify-end gap-3 pt-2">

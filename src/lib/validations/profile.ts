@@ -26,10 +26,23 @@ export const profileSchema = z.object({
   country: z.string().max(100, 'Country name too long').optional().nullable(),
   avatarUrl: z
     .string()
-    .url('Invalid avatar URL')
     .optional()
     .nullable()
-    .or(z.literal('')),
+    .refine(
+      (val) => {
+        if (!val || val === '') return true;
+        // Allow character avatar IDs (avatar-*)
+        if (val.startsWith('avatar-')) return true;
+        // Allow valid URLs
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      { message: 'Invalid avatar URL or character avatar ID' }
+    ),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;

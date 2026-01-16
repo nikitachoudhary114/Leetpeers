@@ -262,41 +262,41 @@ export function ProblemsWidget({ userStreak }: ProblemsWidgetProps) {
       {/* Header with Streak */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Practice Problems</h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Practice Problems</h2>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">
             Solve problems at your own pace
           </p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-xl">
           <FireIcon className="w-5 h-5 text-orange-400" />
           <span className="text-lg font-bold text-orange-400">{userStreak}</span>
-          <span className="text-sm text-slate-400">day streak</span>
+          <span className="text-sm text-[var(--color-text-muted)]">day streak</span>
         </div>
       </div>
 
       {/* Stats Summary */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
-          <div className="text-2xl font-bold text-white">{solvedProblems.size}</div>
-          <div className="text-xs text-slate-400 mt-1">Solved Today</div>
+        <div className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 text-center">
+          <div className="text-2xl font-bold text-[var(--color-text-primary)]">{solvedProblems.size}</div>
+          <div className="text-xs text-[var(--color-text-muted)] mt-1">Solved Today</div>
         </div>
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
+        <div className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 text-center">
           <div className="text-2xl font-bold text-emerald-400">
             {problems.filter((p) => p.difficulty === 'Easy').length}
           </div>
-          <div className="text-xs text-slate-400 mt-1">Easy</div>
+          <div className="text-xs text-[var(--color-text-muted)] mt-1">Easy</div>
         </div>
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
+        <div className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 text-center">
           <div className="text-2xl font-bold text-amber-400">
             {problems.filter((p) => p.difficulty === 'Medium').length}
           </div>
-          <div className="text-xs text-slate-400 mt-1">Medium</div>
+          <div className="text-xs text-[var(--color-text-muted)] mt-1">Medium</div>
         </div>
-        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
+        <div className="bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 text-center">
           <div className="text-2xl font-bold text-red-400">
             {problems.filter((p) => p.difficulty === 'Hard').length}
           </div>
-          <div className="text-xs text-slate-400 mt-1">Hard</div>
+          <div className="text-xs text-[var(--color-text-muted)] mt-1">Hard</div>
         </div>
       </div>
 
@@ -308,8 +308,8 @@ export function ProblemsWidget({ userStreak }: ProblemsWidgetProps) {
             onClick={() => setDifficulty(d)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               difficulty === d
-                ? 'bg-indigo-500 text-white'
-                : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
             }`}
           >
             {d}
@@ -328,26 +328,26 @@ export function ProblemsWidget({ userStreak }: ProblemsWidgetProps) {
                 setSelectedProblem(problem);
                 setViewMode('problem');
               }}
-              className="w-full bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-left hover:border-indigo-500/50 hover:bg-slate-800/70 transition-all group"
+              className="w-full bg-[var(--color-bg-tertiary)] rounded-xl border border-[var(--color-border)] p-4 text-left hover:border-indigo-500/50 hover:bg-[var(--color-bg-hover)] transition-all group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isSolved ? 'bg-emerald-500/20' : 'bg-slate-700'
+                    isSolved ? 'bg-emerald-500/20' : 'bg-[var(--color-bg-hover)]'
                   }`}>
                     {isSolved ? (
                       <CheckIcon className="w-5 h-5 text-emerald-400" />
                     ) : (
-                      <span className="text-sm text-slate-400">#{problem.id}</span>
+                      <span className="text-sm text-[var(--color-text-muted)]">#{problem.id}</span>
                     )}
                   </div>
                   <div>
-                    <h3 className="font-medium text-white group-hover:text-indigo-400 transition-colors">
+                    <h3 className="font-medium text-[var(--color-text-primary)] group-hover:text-indigo-400 transition-colors">
                       {problem.title}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
                       {problem.tags.slice(0, 2).map((tag) => (
-                        <span key={tag} className="text-xs text-slate-500">
+                        <span key={tag} className="text-xs text-[var(--color-text-muted)]">
                           {tag}
                         </span>
                       ))}
@@ -394,14 +394,14 @@ function ProblemDetailView({ problem, isSolved, onBack, onMarkSolved }: ProblemD
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-[var(--color-bg-tertiary)] rounded-lg transition-colors"
         >
-          <BackIcon className="w-5 h-5 text-slate-400" />
+          <BackIcon className="w-5 h-5 text-[var(--color-text-muted)]" />
         </button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-500">#{problem.id}</span>
-            <h2 className="text-xl font-bold text-white">{problem.title}</h2>
+            <span className="text-sm text-[var(--color-text-muted)]">#{problem.id}</span>
+            <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{problem.title}</h2>
             <span
               className={`px-2.5 py-1 rounded-lg text-sm font-medium border ${
                 difficultyColors[problem.difficulty]
@@ -424,31 +424,31 @@ function ProblemDetailView({ problem, isSolved, onBack, onMarkSolved }: ProblemD
       </div>
 
       {/* Description */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-        <h3 className="text-sm font-semibold text-white mb-3">Description</h3>
-        <pre className="text-sm text-slate-300 whitespace-pre-wrap font-sans leading-relaxed">
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">Description</h3>
+        <pre className="text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap font-sans leading-relaxed">
           {problem.description}
         </pre>
       </div>
 
       {/* Examples */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-        <h3 className="text-sm font-semibold text-white mb-3">Examples</h3>
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">Examples</h3>
         <div className="space-y-4">
           {problem.examples.map((example, index) => (
-            <div key={index} className="bg-slate-900/50 rounded-xl p-4">
-              <div className="text-xs text-slate-500 mb-2">Example {index + 1}</div>
+            <div key={index} className="bg-[var(--color-bg-primary)] rounded-xl p-4">
+              <div className="text-xs text-[var(--color-text-muted)] mb-2">Example {index + 1}</div>
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="text-slate-400">Input: </span>
+                  <span className="text-[var(--color-text-muted)]">Input: </span>
                   <code className="text-emerald-400">{example.input}</code>
                 </div>
                 <div>
-                  <span className="text-slate-400">Output: </span>
+                  <span className="text-[var(--color-text-muted)]">Output: </span>
                   <code className="text-amber-400">{example.output}</code>
                 </div>
                 {example.explanation && (
-                  <div className="text-slate-400 text-xs mt-2">
+                  <div className="text-[var(--color-text-muted)] text-xs mt-2">
                     <span className="font-medium">Explanation: </span>
                     {example.explanation}
                   </div>
@@ -460,33 +460,33 @@ function ProblemDetailView({ problem, isSolved, onBack, onMarkSolved }: ProblemD
       </div>
 
       {/* Constraints */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-        <h3 className="text-sm font-semibold text-white mb-3">Constraints</h3>
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">Constraints</h3>
         <ul className="list-disc list-inside space-y-1">
           {problem.constraints.map((constraint, index) => (
-            <li key={index} className="text-sm text-slate-400">
-              <code className="text-slate-300">{constraint}</code>
+            <li key={index} className="text-sm text-[var(--color-text-muted)]">
+              <code className="text-[var(--color-text-secondary)]">{constraint}</code>
             </li>
           ))}
         </ul>
       </div>
 
       {/* Hints */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
         <button
           onClick={() => setShowHints(!showHints)}
           className="flex items-center justify-between w-full"
         >
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
             <LightbulbIcon className="w-4 h-4 text-amber-400" />
             Hints
           </h3>
-          <ChevronIcon className={`w-5 h-5 text-slate-400 transition-transform ${showHints ? 'rotate-180' : ''}`} />
+          <ChevronIcon className={`w-5 h-5 text-[var(--color-text-muted)] transition-transform ${showHints ? 'rotate-180' : ''}`} />
         </button>
         {showHints && (
           <ul className="mt-4 space-y-2">
             {problem.hints.map((hint, index) => (
-              <li key={index} className="text-sm text-slate-300 flex items-start gap-2">
+              <li key={index} className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
                 <span className="text-amber-400">•</span>
                 {hint}
               </li>
@@ -496,35 +496,35 @@ function ProblemDetailView({ problem, isSolved, onBack, onMarkSolved }: ProblemD
       </div>
 
       {/* Solution */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
+      <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
         <button
           onClick={() => setShowSolution(!showSolution)}
           className="flex items-center justify-between w-full"
         >
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
             <CodeIcon className="w-4 h-4 text-indigo-400" />
             Solution
           </h3>
-          <ChevronIcon className={`w-5 h-5 text-slate-400 transition-transform ${showSolution ? 'rotate-180' : ''}`} />
+          <ChevronIcon className={`w-5 h-5 text-[var(--color-text-muted)] transition-transform ${showSolution ? 'rotate-180' : ''}`} />
         </button>
         {showSolution && (
           <div className="mt-4 space-y-4">
             <div>
-              <h4 className="text-xs text-slate-500 mb-2">Approach</h4>
-              <p className="text-sm text-slate-300">{problem.solution.approach}</p>
+              <h4 className="text-xs text-[var(--color-text-muted)] mb-2">Approach</h4>
+              <p className="text-sm text-[var(--color-text-secondary)]">{problem.solution.approach}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-900/50 rounded-lg p-3">
-                <div className="text-xs text-slate-500">Time Complexity</div>
+              <div className="bg-[var(--color-bg-primary)] rounded-lg p-3">
+                <div className="text-xs text-[var(--color-text-muted)]">Time Complexity</div>
                 <code className="text-emerald-400">{problem.solution.timeComplexity}</code>
               </div>
-              <div className="bg-slate-900/50 rounded-lg p-3">
-                <div className="text-xs text-slate-500">Space Complexity</div>
+              <div className="bg-[var(--color-bg-primary)] rounded-lg p-3">
+                <div className="text-xs text-[var(--color-text-muted)]">Space Complexity</div>
                 <code className="text-amber-400">{problem.solution.spaceComplexity}</code>
               </div>
             </div>
-            <div className="bg-slate-900 rounded-xl p-4">
-              <pre className="text-sm text-slate-300 overflow-x-auto">
+            <div className="bg-[var(--color-bg-primary)] rounded-xl p-4">
+              <pre className="text-sm text-[var(--color-text-secondary)] overflow-x-auto">
                 <code>{problem.solution.code.python}</code>
               </pre>
             </div>
@@ -537,7 +537,7 @@ function ProblemDetailView({ problem, isSolved, onBack, onMarkSolved }: ProblemD
         {!isSolved && (
           <button
             onClick={onMarkSolved}
-            className="flex-1 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-[var(--color-text-primary)] rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
           >
             <CheckIcon className="w-5 h-5" />
             Mark as Solved
@@ -545,7 +545,7 @@ function ProblemDetailView({ problem, isSolved, onBack, onMarkSolved }: ProblemD
         )}
         <button
           onClick={onBack}
-          className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
+          className="px-6 py-3 bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] rounded-xl font-medium transition-colors"
         >
           Back to Problems
         </button>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] flex transition-colors duration-300">
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600" />
@@ -104,21 +105,26 @@ export default function SignupPage() {
       {/* Right Side - Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
+          {/* Theme Toggle - positioned top right */}
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
+          </div>
+
           {/* Mobile Logo */}
           <div className="lg:hidden mb-8 text-center">
             <Link href="/" className="inline-flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-lg">L</span>
               </div>
-              <span className="text-xl font-bold text-white">LeetPeers</span>
+              <span className="text-xl font-bold text-[var(--color-text-primary)]">LeetPeers</span>
             </Link>
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">Create account</h2>
-            <p className="text-slate-400">
+            <h2 className="text-3xl font-bold text-[var(--color-text-primary)] mb-2">Create account</h2>
+            <p className="text-[var(--color-text-muted)]">
               Already have an account?{" "}
-              <Link href="/auth/signin" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+              <Link href="/auth/signin" className="text-indigo-500 hover:text-indigo-400 font-medium transition-colors">
                 Sign in
               </Link>
             </p>
@@ -128,7 +134,7 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-3 bg-white text-slate-900 px-6 py-4 rounded-xl font-semibold hover:bg-slate-100 transition-all duration-200 mb-6"
+            className="w-full flex items-center justify-center gap-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] px-6 py-4 rounded-xl font-semibold hover:bg-[var(--color-bg-hover)] transition-all duration-200 mb-6"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -141,10 +147,10 @@ export default function SignupPage() {
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700"></div>
+              <div className="w-full border-t border-[var(--color-border)]"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-slate-950 text-slate-500">or continue with email</span>
+              <span className="px-4 bg-[var(--color-bg-primary)] text-[var(--color-text-muted)]">or continue with email</span>
             </div>
           </div>
 
@@ -162,7 +168,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
                   Full name
                 </label>
                 <input
@@ -173,11 +179,11 @@ export default function SignupPage() {
                   onChange={handleChange}
                   placeholder="John Doe"
                   required
-                  className="w-full px-4 py-3.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3.5 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
                 />
               </div>
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-2">
+                <label htmlFor="username" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
                   Username
                 </label>
                 <input
@@ -188,13 +194,13 @@ export default function SignupPage() {
                   onChange={handleChange}
                   placeholder="johndoe"
                   required
-                  className="w-full px-4 py-3.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3.5 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
                 Email address
               </label>
               <input
@@ -205,12 +211,12 @@ export default function SignupPage() {
                 onChange={handleChange}
                 placeholder="you@example.com"
                 required
-                className="w-full px-4 py-3.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
                 Password
               </label>
               <input
@@ -222,9 +228,9 @@ export default function SignupPage() {
                 placeholder="••••••••"
                 required
                 minLength={8}
-                className="w-full px-4 py-3.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
               />
-              <p className="mt-2 text-xs text-slate-500">Must be at least 8 characters</p>
+              <p className="mt-2 text-xs text-[var(--color-text-muted)]">Must be at least 8 characters</p>
             </div>
 
             <button
@@ -246,11 +252,11 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-sm text-[var(--color-text-muted)]">
             By creating an account, you agree to our{" "}
-            <Link href="#" className="text-slate-400 hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="#" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">Terms of Service</Link>
             {" "}and{" "}
-            <Link href="#" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="#" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors">Privacy Policy</Link>
           </p>
         </div>
       </div>

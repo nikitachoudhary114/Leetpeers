@@ -5,13 +5,18 @@ import { ProblemsList } from './ProblemsList';
 import { ProblemView } from './ProblemView';
 import type { Problem } from './problemsData';
 
-export function ProblemsSection() {
+interface ProblemsSectionProps {
+  roomId: string;
+}
+
+export function ProblemsSection({ roomId }: ProblemsSectionProps) {
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
 
   if (selectedProblem) {
     return (
       <ProblemView
         problem={selectedProblem}
+        roomId={roomId}
         onBack={() => setSelectedProblem(null)}
       />
     );

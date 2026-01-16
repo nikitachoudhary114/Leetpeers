@@ -331,7 +331,7 @@ const categoryColors: Record<string, string> = {
   tree: 'bg-green-500/20 text-green-400 border-green-500/30',
   graph: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   dp: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  other: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+  other: 'bg-[var(--color-bg-tertiary)]/20 text-[var(--color-text-muted)] border-[var(--color-border)]/30',
 };
 
 const difficultyColors: Record<string, string> = {
@@ -362,8 +362,8 @@ export function SolutionsSection() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Solution Strategies</h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Solution Strategies</h2>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">
             Learn common patterns and approaches to solve LeetCode problems
           </p>
         </div>
@@ -377,8 +377,8 @@ export function SolutionsSection() {
             onClick={() => setCategoryFilter(category)}
             className={`px-4 py-2 rounded-lg text-sm font-medium capitalize whitespace-nowrap transition-colors ${
               categoryFilter === category
-                ? 'bg-indigo-500 text-white'
-                : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-hover)]'
             }`}
           >
             {category === 'dp' ? 'Dynamic Programming' : category}
@@ -392,11 +392,11 @@ export function SolutionsSection() {
           <button
             key={strategy.id}
             onClick={() => setSelectedStrategy(strategy)}
-            className="bg-slate-800/50 rounded-2xl border border-slate-700 p-5 text-left hover:border-indigo-500/50 hover:bg-slate-800/70 transition-all group"
+            className="bg-[var(--color-bg-tertiary)]/50 rounded-2xl border border-[var(--color-border)] p-5 text-left hover:border-indigo-500/50 hover:bg-[var(--color-bg-tertiary)]/70 transition-all group"
           >
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="font-semibold text-white group-hover:text-indigo-400 transition-colors">
+                <h3 className="font-semibold text-[var(--color-text-primary)] group-hover:text-indigo-400 transition-colors">
                   {strategy.name}
                 </h3>
                 <span className={`text-xs ${difficultyColors[strategy.difficulty]}`}>
@@ -407,14 +407,14 @@ export function SolutionsSection() {
                 {strategy.category}
               </span>
             </div>
-            <p className="text-sm text-slate-400 line-clamp-2 mb-4">
+            <p className="text-sm text-[var(--color-text-muted)] line-clamp-2 mb-4">
               {strategy.description}
             </p>
             <div className="flex items-center gap-4 text-xs">
-              <span className="text-slate-500">
+              <span className="text-[var(--color-text-muted)]">
                 Time: <span className="text-emerald-400">{strategy.timeComplexity}</span>
               </span>
-              <span className="text-slate-500">
+              <span className="text-[var(--color-text-muted)]">
                 Space: <span className="text-amber-400">{strategy.spaceComplexity}</span>
               </span>
             </div>
@@ -439,13 +439,13 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-[var(--color-bg-tertiary)] rounded-lg transition-colors"
         >
-          <BackIcon className="w-5 h-5 text-slate-400" />
+          <BackIcon className="w-5 h-5 text-[var(--color-text-muted)]" />
         </button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-white">{strategy.name}</h2>
+            <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{strategy.name}</h2>
             <span className={`px-2 py-1 rounded-lg text-xs border ${categoryColors[strategy.category]}`}>
               {strategy.category}
             </span>
@@ -461,25 +461,25 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
         {/* Left Column */}
         <div className="space-y-6">
           {/* Description */}
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-5">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <div className="bg-[var(--color-bg-tertiary)]/50 rounded-2xl border border-[var(--color-border)] p-5">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
               <InfoIcon className="w-4 h-4 text-indigo-400" />
               Overview
             </h3>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
               {strategy.description}
             </p>
           </div>
 
           {/* When to Use */}
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-5">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <div className="bg-[var(--color-bg-tertiary)]/50 rounded-2xl border border-[var(--color-border)] p-5">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
               <TargetIcon className="w-4 h-4 text-emerald-400" />
               When to Use
             </h3>
             <ul className="space-y-2">
               {strategy.whenToUse.map((use, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-slate-300">
+                <li key={index} className="flex items-start gap-2 text-sm text-[var(--color-text-secondary)]">
                   <span className="text-emerald-400 mt-1">•</span>
                   {use}
                 </li>
@@ -488,8 +488,8 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
           </div>
 
           {/* Steps */}
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-5">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <div className="bg-[var(--color-bg-tertiary)]/50 rounded-2xl border border-[var(--color-border)] p-5">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
               <StepsIcon className="w-4 h-4 text-amber-400" />
               Step-by-Step Approach
             </h3>
@@ -499,7 +499,7 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
                   <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-medium flex-shrink-0">
                     {index + 1}
                   </span>
-                  <span className="text-slate-300 pt-0.5">{step}</span>
+                  <span className="text-[var(--color-text-secondary)] pt-0.5">{step}</span>
                 </li>
               ))}
             </ol>
@@ -509,22 +509,22 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
         {/* Right Column */}
         <div className="space-y-6">
           {/* Code Template */}
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden">
-            <div className="p-4 border-b border-slate-700 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <div className="bg-[var(--color-bg-tertiary)]/50 rounded-2xl border border-[var(--color-border)] overflow-hidden">
+            <div className="p-4 border-b border-[var(--color-border)] flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
                 <CodeIcon className="w-4 h-4 text-purple-400" />
                 Code Template
               </h3>
               <button
                 onClick={() => setShowCode(!showCode)}
-                className="text-xs text-slate-400 hover:text-white"
+                className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
               >
                 {showCode ? 'Hide' : 'Show'}
               </button>
             </div>
             {showCode && (
-              <div className="p-4 bg-slate-900/50">
-                <pre className="text-sm text-slate-300 overflow-x-auto">
+              <div className="p-4 bg-[var(--color-bg-primary)]/50">
+                <pre className="text-sm text-[var(--color-text-secondary)] overflow-x-auto">
                   <code>{strategy.codeTemplate}</code>
                 </pre>
               </div>
@@ -533,14 +533,14 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
 
           {/* Complexity */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-              <div className="text-xs text-slate-500 mb-1">Time Complexity</div>
+            <div className="bg-[var(--color-bg-tertiary)]/50 rounded-xl border border-[var(--color-border)] p-4">
+              <div className="text-xs text-[var(--color-text-muted)] mb-1">Time Complexity</div>
               <code className="text-lg text-emerald-400 font-semibold">
                 {strategy.timeComplexity}
               </code>
             </div>
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-              <div className="text-xs text-slate-500 mb-1">Space Complexity</div>
+            <div className="bg-[var(--color-bg-tertiary)]/50 rounded-xl border border-[var(--color-border)] p-4">
+              <div className="text-xs text-[var(--color-text-muted)] mb-1">Space Complexity</div>
               <code className="text-lg text-amber-400 font-semibold">
                 {strategy.spaceComplexity}
               </code>
@@ -548,8 +548,8 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
           </div>
 
           {/* Common Problems */}
-          <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-5">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <div className="bg-[var(--color-bg-tertiary)]/50 rounded-2xl border border-[var(--color-border)] p-5">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
               <ProblemsIcon className="w-4 h-4 text-cyan-400" />
               Practice These Problems
             </h3>
@@ -564,11 +564,11 @@ function StrategyDetail({ strategy, onBack }: StrategyDetailProps) {
 
           {/* Pro Tips */}
           <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/20 p-5">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
               <LightbulbIcon className="w-4 h-4 text-yellow-400" />
               Pro Tips
             </h3>
-            <ul className="space-y-2 text-sm text-slate-300">
+            <ul className="space-y-2 text-sm text-[var(--color-text-secondary)]">
               <li className="flex items-start gap-2">
                 <span className="text-yellow-400">★</span>
                 Start by identifying the pattern before coding

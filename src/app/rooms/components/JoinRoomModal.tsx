@@ -60,7 +60,7 @@ export function JoinRoomModal({ isOpen, onClose, onSubmit }: JoinRoomModalProps)
           autoFocus
           className="font-mono tracking-wider"
         />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--color-text-muted)]">
           Ask the room owner for the code to join their study group.
         </p>
         <div className="flex justify-end gap-3 pt-2">

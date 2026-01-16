@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react';
 import type { UserWithRooms, ProfileUpdatePayload } from '@/types';
 import { VerifiableProfileSection } from './components/VerifiableProfileSection';
+import { Avatar } from '@/components/ui/Avatar';
+import { AvatarSelector, CHARACTER_AVATARS } from '@/components/CharacterAvatars';
 
 interface ProfileContainerProps {
   initialUser: UserWithRooms;
@@ -75,18 +77,30 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
       )}
 
       {/* Profile Header */}
-      <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl border border-slate-800 p-6 sm:p-8">
+      <div className="bg-gradient-to-br from-[var(--color-bg-tertiary)] to-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-indigo-500/20">
-            {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
-          </div>
+          <Avatar
+            src={user.avatarUrl}
+            name={user.name || user.email}
+            size="2xl"
+            className="shadow-xl shadow-indigo-500/20"
+          />
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl font-bold text-white">{user.name || 'Anonymous'}</h1>
-            <p className="text-slate-400">@{user.username || 'username'}</p>
-            <p className="text-sm text-slate-500 mt-1">{user.email}</p>
+            <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{user.name || 'Anonymous'}</h1>
+            <p className="text-[var(--color-text-muted)]">@{user.username || 'username'}</p>
+            <p className="text-sm text-[var(--color-text-disabled)] mt-1">{user.email}</p>
           </div>
         </div>
       </div>
+
+      {/* Avatar Selection */}
+      <AvatarSelectionSection
+        currentAvatar={user.avatarUrl}
+        onUpdate={handleUpdate}
+        onAvatarChange={(avatarUrl) => {
+          setUser((prev) => ({ ...prev, avatarUrl }));
+        }}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-4">
@@ -96,8 +110,8 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
               <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
             </svg>
           </div>
-          <p className="text-3xl font-bold text-white">{user.streakCount}</p>
-          <p className="text-sm text-slate-400 mt-1">Day Streak</p>
+          <p className="text-3xl font-bold text-[var(--color-text-primary)]">{user.streakCount}</p>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">Day Streak</p>
         </div>
         <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl border border-green-500/20 p-6 text-center">
           <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-green-500/20 flex items-center justify-center">
@@ -105,8 +119,8 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
           </div>
-          <p className="text-3xl font-bold text-white">{user.problemsSolved}</p>
-          <p className="text-sm text-slate-400 mt-1">Problems Solved</p>
+          <p className="text-3xl font-bold text-[var(--color-text-primary)]">{user.problemsSolved}</p>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">Problems Solved</p>
         </div>
         <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 rounded-2xl border border-indigo-500/20 p-6 text-center">
           <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-indigo-500/20 flex items-center justify-center">
@@ -114,8 +128,8 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
               <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
             </svg>
           </div>
-          <p className="text-lg font-bold text-white">{formatDate(user.createdAt)}</p>
-          <p className="text-sm text-slate-400 mt-1">Member Since</p>
+          <p className="text-lg font-bold text-[var(--color-text-primary)]">{formatDate(user.createdAt)}</p>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">Member Since</p>
         </div>
       </div>
 
@@ -167,80 +181,66 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
   );
 }
 
-// Profile Section Component
-interface ProfileSectionProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  iconBg: string;
-  iconColor: string;
-  value: string | null;
-  placeholder: string;
-  fieldName: string;
-  onUpdate: (data: ProfileUpdatePayload) => Promise<boolean>;
-  linkPrefix?: string;
-  linkText?: string;
-}
-
-function ProfileSection({
-  title,
-  description,
-  icon,
-  iconBg,
-  iconColor,
-  value,
-  placeholder,
-  fieldName,
+// Avatar Selection Section
+function AvatarSelectionSection({
+  currentAvatar,
   onUpdate,
-  linkPrefix,
-  linkText,
-}: ProfileSectionProps) {
+  onAvatarChange,
+}: {
+  currentAvatar: string | null;
+  onUpdate: (data: ProfileUpdatePayload) => Promise<boolean>;
+  onAvatarChange: (avatarUrl: string) => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(value || '');
+  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
     setIsLoading(true);
-    const success = await onUpdate({ [fieldName]: inputValue || null });
+    const success = await onUpdate({ avatarUrl: selectedAvatar || null });
     setIsLoading(false);
-    if (success) setIsEditing(false);
+    if (success) {
+      onAvatarChange(selectedAvatar);
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
-    setInputValue(value || '');
+    setSelectedAvatar(currentAvatar || '');
     setIsEditing(false);
   };
 
+  const currentAvatarData = CHARACTER_AVATARS.find((a) => a.id === currentAvatar);
+
   return (
-    <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6">
+    <div className="bg-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center ${iconColor}`}>
-            {icon}
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
-            <p className="text-sm text-slate-400">{description}</p>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Character Avatar</h3>
+            <p className="text-sm text-[var(--color-text-muted)]">Choose an avatar that represents you</p>
           </div>
         </div>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            className="text-sm text-indigo-500 hover:text-indigo-400 font-medium transition-colors"
           >
-            Edit
+            Change
           </button>
         )}
       </div>
 
       {isEditing ? (
         <div className="space-y-4">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={`Enter your ${title.toLowerCase()} username`}
-            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+          <AvatarSelector
+            selectedId={selectedAvatar}
+            onSelect={setSelectedAvatar}
           />
           <div className="flex gap-3">
             <button
@@ -248,34 +248,27 @@ function ProfileSection({
               disabled={isLoading}
               className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
             >
-              {isLoading ? 'Saving...' : 'Save'}
+              {isLoading ? 'Saving...' : 'Save Avatar'}
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors"
             >
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <div className="mt-2">
-          <p className="text-white font-medium">
-            {value || <span className="text-slate-500">{placeholder}</span>}
-          </p>
-          {value && linkPrefix && linkText && (
-            <a
-              href={`${linkPrefix}${value}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 mt-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
-            >
-              {linkText}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          )}
+        <div className="flex items-center gap-4 mt-2">
+          <Avatar src={currentAvatar} name={currentAvatarData?.name || 'Select Avatar'} size="xl" />
+          <div>
+            <p className="text-[var(--color-text-primary)] font-medium">
+              {currentAvatarData?.name || <span className="text-[var(--color-text-muted)]">No avatar selected</span>}
+            </p>
+            {currentAvatarData && (
+              <p className="text-sm text-[var(--color-text-muted)]">Click &quot;Change&quot; to select a different avatar</p>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -319,7 +312,7 @@ function PersonalInfoSection({
   };
 
   return (
-    <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6">
+    <div className="bg-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
@@ -328,14 +321,14 @@ function PersonalInfoSection({
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Personal Information</h3>
-            <p className="text-sm text-slate-400">Update your personal details</p>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Personal Information</h3>
+            <p className="text-sm text-[var(--color-text-muted)]">Update your personal details</p>
           </div>
         </div>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            className="text-sm text-indigo-500 hover:text-indigo-400 font-medium transition-colors"
           >
             Edit
           </button>
@@ -345,31 +338,31 @@ function PersonalInfoSection({
       {isEditing ? (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Name</label>
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">Name</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Bio</label>
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">Bio</label>
             <textarea
               value={form.bio}
               onChange={(e) => setForm({ ...form, bio: e.target.value })}
               rows={3}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+              className="w-full px-4 py-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none hover:border-[var(--color-border-hover)]"
               placeholder="Tell us about yourself..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Country</label>
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">Country</label>
             <input
               type="text"
               value={form.country}
               onChange={(e) => setForm({ ...form, country: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
               placeholder="Your country"
             />
           </div>
@@ -383,7 +376,7 @@ function PersonalInfoSection({
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors"
             >
               Cancel
             </button>
@@ -392,16 +385,16 @@ function PersonalInfoSection({
       ) : (
         <div className="space-y-3 mt-2">
           <div>
-            <span className="text-sm text-slate-400">Name: </span>
-            <span className="text-white">{user.name || <span className="text-slate-500">Not set</span>}</span>
+            <span className="text-sm text-[var(--color-text-muted)]">Name: </span>
+            <span className="text-[var(--color-text-primary)]">{user.name || <span className="text-[var(--color-text-muted)]">Not set</span>}</span>
           </div>
           <div>
-            <span className="text-sm text-slate-400">Bio: </span>
-            <span className="text-white">{user.bio || <span className="text-slate-500">No bio yet</span>}</span>
+            <span className="text-sm text-[var(--color-text-muted)]">Bio: </span>
+            <span className="text-[var(--color-text-primary)]">{user.bio || <span className="text-[var(--color-text-muted)]">No bio yet</span>}</span>
           </div>
           <div>
-            <span className="text-sm text-slate-400">Country: </span>
-            <span className="text-white">{user.country || <span className="text-slate-500">Not set</span>}</span>
+            <span className="text-sm text-[var(--color-text-muted)]">Country: </span>
+            <span className="text-[var(--color-text-primary)]">{user.country || <span className="text-[var(--color-text-muted)]">Not set</span>}</span>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Avatar, Badge, ProgressBar } from '@/components/ui';
+import { Avatar, Badge } from '@/components/ui';
 
 interface Player {
   id: string;
@@ -19,10 +19,34 @@ interface LeaderboardProps {
 }
 
 type SortBy = 'streak' | 'problems';
-type TimeFilter = 'all' | 'week' | 'today';
 
-interface PlayerWithStats extends Player {
-  totalSolved?: number;
+// Badge System Configuration
+interface BadgeTier {
+  name: string;
+  minStreak: number;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+}
+
+const BADGE_TIERS: BadgeTier[] = [
+  { name: 'Newbie', minStreak: 0, color: 'text-gray-400', bgColor: 'bg-gray-500/10', borderColor: 'border-gray-500/30' },
+  { name: 'Bronze', minStreak: 7, color: 'text-amber-600', bgColor: 'bg-amber-600/10', borderColor: 'border-amber-600/30' },
+  { name: 'Silver', minStreak: 14, color: 'text-gray-300', bgColor: 'bg-gray-300/10', borderColor: 'border-gray-400/30' },
+  { name: 'Gold', minStreak: 21, color: 'text-yellow-400', bgColor: 'bg-yellow-400/10', borderColor: 'border-yellow-400/30' },
+  { name: 'Platinum', minStreak: 30, color: 'text-cyan-400', bgColor: 'bg-cyan-400/10', borderColor: 'border-cyan-400/30' },
+  { name: 'Diamond', minStreak: 60, color: 'text-blue-400', bgColor: 'bg-blue-400/10', borderColor: 'border-blue-400/30' },
+  { name: 'Master', minStreak: 90, color: 'text-red-500', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/30' },
+  { name: 'Legend', minStreak: 180, color: 'text-purple-400', bgColor: 'bg-gradient-to-r from-purple-500/10 to-pink-500/10', borderColor: 'border-purple-500/30' },
+];
+
+function getBadgeTier(streakCount: number): BadgeTier {
+  for (let i = BADGE_TIERS.length - 1; i >= 0; i--) {
+    if (streakCount >= BADGE_TIERS[i].minStreak) {
+      return BADGE_TIERS[i];
+    }
+  }
+  return BADGE_TIERS[0];
 }
 
 export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
@@ -90,11 +114,11 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
       case 0:
         return 'text-yellow-400';
       case 1:
-        return 'text-slate-300';
+        return 'text-[var(--color-text-secondary)]';
       case 2:
         return 'text-amber-600';
       default:
-        return 'text-slate-500';
+        return 'text-[var(--color-text-muted)]';
     }
   };
 
@@ -103,32 +127,32 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
       case 0:
         return 'bg-yellow-400/10 border-yellow-400/20';
       case 1:
-        return 'bg-slate-300/10 border-slate-300/20';
+        return 'bg-[var(--color-text-secondary)]/10 border-[var(--color-text-secondary)]/20';
       case 2:
         return 'bg-amber-600/10 border-amber-600/20';
       default:
-        return 'bg-slate-800/50 border-slate-700';
+        return 'bg-[var(--color-bg-tertiary)]/50 border-[var(--color-border)]';
     }
   };
 
   return (
-    <div className="bg-slate-800/30 rounded-2xl border border-slate-700">
+    <div className="bg-[var(--color-bg-tertiary)]/30 rounded-2xl border border-[var(--color-border)]">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-700">
+      <div className="px-6 py-4 border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <TrophyIcon className="w-5 h-5 text-yellow-400" />
-            <h3 className="font-semibold text-white">Leaderboard</h3>
+            <h3 className="font-semibold text-[var(--color-text-primary)]">Leaderboard</h3>
           </div>
 
           {/* Sort Options */}
-          <div className="flex gap-1 p-1 bg-slate-800 rounded-lg">
+          <div className="flex gap-1 p-1 bg-[var(--color-bg-tertiary)] rounded-lg">
             <button
               onClick={() => setSortBy('problems')}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 sortBy === 'problems'
-                  ? 'bg-indigo-500 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               Problems
@@ -137,8 +161,8 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
               onClick={() => setSortBy('streak')}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 sortBy === 'streak'
-                  ? 'bg-indigo-500 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               Streak
@@ -150,11 +174,11 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
       {/* Loading State */}
       {loading ? (
         <div className="p-8 text-center">
-          <div className="animate-pulse text-slate-400">Loading leaderboard...</div>
+          <div className="animate-pulse text-[var(--color-text-muted)]">Loading leaderboard...</div>
         </div>
       ) : (
         /* Leaderboard List */
-        <div className="divide-y divide-slate-700/50">
+        <div className="divide-y divide-[var(--color-border)]/50">
           {sortedPlayers.map((player, index) => {
             const isCurrentUser = player.id === currentUserId;
             const problems = playerStats[player.id] || player.problemsSolved;
@@ -164,7 +188,7 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
               <div
                 key={player.id}
                 className={`p-4 transition-colors ${
-                  isCurrentUser ? 'bg-indigo-500/5' : 'hover:bg-slate-800/30'
+                  isCurrentUser ? 'bg-indigo-500/5' : 'hover:bg-[var(--color-bg-tertiary)]/30'
                 }`}
               >
                 <div className="flex items-center gap-4">
@@ -177,7 +201,7 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
                     {isTopThree ? (
                       <MedalIcon className={`w-5 h-5 ${getMedalColor(index)}`} />
                     ) : (
-                      <span className="text-sm font-bold text-slate-400">
+                      <span className="text-sm font-bold text-[var(--color-text-muted)]">
                         {index + 1}
                       </span>
                     )}
@@ -192,9 +216,10 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
                     />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-white truncate">
+                        <h4 className="font-medium text-[var(--color-text-primary)] truncate">
                           {player.name || player.username || 'Anonymous'}
                         </h4>
+                        <BadgeDisplay tier={getBadgeTier(player.streakCount)} />
                         {isCurrentUser && (
                           <Badge variant="info" size="sm">
                             You
@@ -202,7 +227,7 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
                         )}
                       </div>
                       {player.leetcodeProfile && (
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-[var(--color-text-muted)]">
                           @{player.leetcodeProfile}
                         </p>
                       )}
@@ -215,22 +240,22 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
                     <div className="text-right w-20">
                       <div className="flex items-center justify-end gap-1.5">
                         <FireIcon className="w-4 h-4 text-orange-400" />
-                        <span className="text-lg font-bold text-white">
+                        <span className="text-lg font-bold text-[var(--color-text-primary)]">
                           {player.streakCount}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500">days</div>
+                      <div className="text-xs text-[var(--color-text-muted)]">days</div>
                     </div>
 
                     {/* Problems */}
                     <div className="text-right w-20">
                       <div className="flex items-center justify-end gap-1.5">
                         <CheckIcon className="w-4 h-4 text-emerald-400" />
-                        <span className="text-lg font-bold text-white">
+                        <span className="text-lg font-bold text-[var(--color-text-primary)]">
                           {problems}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500">solved</div>
+                      <div className="text-xs text-[var(--color-text-muted)]">solved</div>
                     </div>
                   </div>
                 </div>
@@ -238,7 +263,7 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
                 {/* Progress Bar */}
                 <div className="mt-3 ml-14">
                   {sortBy === 'streak' ? (
-                    <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[var(--color-bg-hover)] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-all duration-500"
                         style={{
@@ -247,7 +272,7 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
                       />
                     </div>
                   ) : (
-                    <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[var(--color-bg-hover)] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
                         style={{
@@ -264,8 +289,8 @@ export function Leaderboard({ players, currentUserId }: LeaderboardProps) {
       )}
 
       {/* Footer */}
-      <div className="px-6 py-3 border-t border-slate-700 bg-slate-900/30">
-        <p className="text-xs text-slate-500 text-center">
+      <div className="px-6 py-3 border-t border-[var(--color-border)] bg-[var(--color-bg-primary)]/30">
+        <p className="text-xs text-[var(--color-text-muted)] text-center">
           Rankings based on {sortBy === 'streak' ? 'consecutive days' : 'total problems solved'}
         </p>
       </div>
@@ -282,6 +307,86 @@ function TrophyIcon({ className }: { className?: string }) {
         strokeWidth={2}
         d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
       />
+    </svg>
+  );
+}
+
+// Badge Display Component
+function BadgeDisplay({ tier }: { tier: BadgeTier }) {
+  const getBadgeIcon = () => {
+    switch (tier.name) {
+      case 'Newbie':
+        return <SeedlingIcon className={`w-3 h-3 ${tier.color}`} />;
+      case 'Bronze':
+      case 'Silver':
+        return <ShieldIcon className={`w-3 h-3 ${tier.color}`} />;
+      case 'Gold':
+      case 'Platinum':
+        return <CrownIcon className={`w-3 h-3 ${tier.color}`} />;
+      case 'Diamond':
+        return <DiamondIcon className={`w-3 h-3 ${tier.color}`} />;
+      case 'Master':
+        return <StarBadgeIcon className={`w-3 h-3 ${tier.color}`} />;
+      case 'Legend':
+        return <LegendIcon className={`w-3 h-3 ${tier.color}`} />;
+      default:
+        return <SeedlingIcon className={`w-3 h-3 ${tier.color}`} />;
+    }
+  };
+
+  return (
+    <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${tier.bgColor} ${tier.borderColor} border`}>
+      {getBadgeIcon()}
+      <span className={tier.color}>{tier.name}</span>
+    </div>
+  );
+}
+
+// Badge Icons
+function SeedlingIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 22c-4.97 0-9-4.03-9-9 0-3.87 2.4-7.17 5.8-8.48-.24.78-.38 1.6-.38 2.48 0 3.31 2.69 6 6 6 .88 0 1.7-.14 2.48-.38C15.17 16.6 11.87 19 8 19c-1.1 0-2-.9-2-2s.9-2 2-2c.35 0 .68.09.97.25.03-.08.03-.17.03-.25 0-2.21-1.79-4-4-4-.33 0-.65.04-.96.11C5.54 7.53 8.47 5 12 5c4.97 0 9 4.03 9 9s-4.03 9-9 9z"/>
+    </svg>
+  );
+}
+
+function ShieldIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+    </svg>
+  );
+}
+
+function CrownIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
+    </svg>
+  );
+}
+
+function DiamondIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M19 3H5L2 9l10 12L22 9l-3-6zM9.62 8l1.5-3h1.76l1.5 3H9.62zM11 18.06L5.62 11h2.76l2.62 3.5V18.06zM12 11.31L9.09 8h5.82L12 11.31zm1 3.19l2.62-3.5h2.76L12 18.06v-3.56z"/>
+    </svg>
+  );
+}
+
+function StarBadgeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  );
+}
+
+function LegendIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
     </svg>
   );
 }

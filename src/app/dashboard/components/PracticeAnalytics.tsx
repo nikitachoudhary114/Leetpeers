@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type TimeRange = 'weekly' | 'monthly' | 'yearly';
 
@@ -12,9 +12,281 @@ interface DailyStats {
   total: number;
 }
 
-// Mock data generator for demo purposes
-function generateMockData(range: TimeRange): DailyStats[] {
-  const data: DailyStats[] = [];
+interface AnalyticsData {
+  dailyStats: DailyStats[];
+  totals: { easy: number; medium: number; hard: number; total: number };
+  bestDay: { date: string; total: number };
+  activeStreak: number;
+  avgPerDay: string;
+  streakCount: number;
+  totalProblemsSolved: number;
+}
+
+interface PracticeAnalyticsProps {
+  userStreak: number;
+}
+
+export function PracticeAnalytics({ userStreak }: PracticeAnalyticsProps) {
+  const [timeRange, setTimeRange] = useState<TimeRange>('weekly');
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAnalytics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/analytics?range=${timeRange}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics');
+      }
+
+      const analyticsData = await response.json();
+      setData(analyticsData);
+    } catch (err) {
+      console.error('Analytics fetch error:', err);
+      setError('Could not load analytics data');
+      // Fall back to mock data
+      setData(generateMockData(timeRange));
+    } finally {
+      setLoading(false);
+    }
+  }, [timeRange]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
+
+  // Use API data or fallback to calculated values
+  const dailyStats = data?.dailyStats || [];
+  const totals = data?.totals || { easy: 0, medium: 0, hard: 0, total: 0 };
+  const bestDay = data?.bestDay || { date: '', total: 0 };
+  const avgPerDay = data?.avgPerDay || '0';
+  const currentStreak = data?.streakCount ?? userStreak;
+
+  // Get recent days for chart
+  const recentDays = timeRange === 'weekly' ? dailyStats : dailyStats.slice(-14);
+  const maxValue = Math.max(...recentDays.map((d) => d.total), 1);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Practice Analytics</h2>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">
+            Track your problem-solving progress
+          </p>
+        </div>
+        {/* Time Range Selector */}
+        <div className="flex gap-1 p-1 bg-[var(--color-bg-tertiary)] rounded-lg">
+          {(['weekly', 'monthly', 'yearly'] as TimeRange[]).map((range) => (
+            <button
+              key={range}
+              onClick={() => setTimeRange(range)}
+              className={`px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${
+                timeRange === range
+                  ? 'bg-indigo-500 text-[var(--color-text-primary)]'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
+              }`}
+            >
+              {range}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-8 flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-[var(--color-text-muted)]">Loading analytics...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-sm text-amber-400">
+          {error} - Showing sample data
+        </div>
+      )}
+
+      {!loading && (
+        <>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              title="Total Solved"
+              value={totals.total}
+              icon={<CheckIcon className="w-5 h-5" />}
+              color="indigo"
+            />
+            <StatCard
+              title="Current Streak"
+              value={`${currentStreak} days`}
+              icon={<FireIcon className="w-5 h-5" />}
+              color="orange"
+            />
+            <StatCard
+              title="Avg. Per Day"
+              value={avgPerDay}
+              icon={<ChartIcon className="w-5 h-5" />}
+              color="emerald"
+            />
+            <StatCard
+              title="Best Day"
+              value={`${bestDay.total} problems`}
+              subtitle={bestDay.date ? formatDate(bestDay.date) : '-'}
+              icon={<TrophyIcon className="w-5 h-5" />}
+              color="amber"
+            />
+          </div>
+
+          {/* Difficulty Breakdown */}
+          <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">Difficulty Breakdown</h3>
+            <div className="grid grid-cols-3 gap-4">
+              <DifficultyCard
+                label="Easy"
+                count={totals.easy}
+                total={totals.total}
+                color="emerald"
+              />
+              <DifficultyCard
+                label="Medium"
+                count={totals.medium}
+                total={totals.total}
+                color="amber"
+              />
+              <DifficultyCard
+                label="Hard"
+                count={totals.hard}
+                total={totals.total}
+                color="red"
+              />
+            </div>
+          </div>
+
+          {/* Activity Chart */}
+          <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+              Activity ({timeRange === 'weekly' ? 'Last 7 Days' : timeRange === 'monthly' ? 'Last 14 Days' : 'Last 14 Days'})
+            </h3>
+            <div className="flex items-end gap-1 h-32">
+              {recentDays.map((day, index) => {
+                const height = (day.total / maxValue) * 100;
+                return (
+                  <div
+                    key={index}
+                    className="flex-1 flex flex-col items-center gap-1"
+                  >
+                    <div
+                      className={`w-full rounded-t-sm transition-all hover:from-indigo-400 hover:to-purple-400 ${
+                        day.total > 0
+                          ? 'bg-gradient-to-t from-indigo-500 to-purple-500'
+                          : 'bg-[var(--color-bg-hover)]'
+                      }`}
+                      style={{ height: `${Math.max(height, 4)}%` }}
+                      title={`${day.date}: ${day.total} problems`}
+                    />
+                    {(timeRange === 'weekly' || index % 2 === 0) && (
+                      <span className="text-xs text-[var(--color-text-muted)]">
+                        {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }).charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Activity Heatmap (for monthly/yearly) */}
+          {timeRange !== 'weekly' && dailyStats.length > 0 && (
+            <div className="bg-[var(--color-bg-tertiary)] rounded-2xl border border-[var(--color-border)] p-6">
+              <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">Activity Heatmap</h3>
+              <div className="grid grid-cols-7 gap-1">
+                {dailyStats.slice(-28).map((day, index) => {
+                  const intensity = day.total === 0 ? 0 : day.total <= 1 ? 1 : day.total <= 3 ? 2 : 3;
+                  const colors = [
+                    'bg-[var(--color-bg-hover)]',
+                    'bg-emerald-900',
+                    'bg-emerald-700',
+                    'bg-emerald-500',
+                  ];
+                  return (
+                    <div
+                      key={index}
+                      className={`aspect-square rounded-sm ${colors[intensity]} transition-colors hover:ring-2 hover:ring-white/20`}
+                      title={`${day.date}: ${day.total} problems`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex items-center justify-end gap-2 mt-4">
+                <span className="text-xs text-[var(--color-text-muted)]">Less</span>
+                <div className="flex gap-1">
+                  <div className="w-3 h-3 rounded-sm bg-[var(--color-bg-hover)]" />
+                  <div className="w-3 h-3 rounded-sm bg-emerald-900" />
+                  <div className="w-3 h-3 rounded-sm bg-emerald-700" />
+                  <div className="w-3 h-3 rounded-sm bg-emerald-500" />
+                </div>
+                <span className="text-xs text-[var(--color-text-muted)]">More</span>
+              </div>
+            </div>
+          )}
+
+          {/* Progress Insights */}
+          <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/20 p-6">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
+              <LightbulbIcon className="w-4 h-4 text-amber-400" />
+              Insights
+            </h3>
+            <ul className="space-y-3">
+              {totals.easy > totals.medium + totals.hard && (
+                <li className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
+                  <span className="text-indigo-400">•</span>
+                  Great progress on Easy problems! Consider challenging yourself with more Medium problems.
+                </li>
+              )}
+              {currentStreak >= 3 && (
+                <li className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
+                  <span className="text-emerald-400">•</span>
+                  Amazing! You&apos;ve been consistent for {currentStreak} days. Keep the streak going!
+                </li>
+              )}
+              {Number(avgPerDay) < 2 && (
+                <li className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
+                  <span className="text-amber-400">•</span>
+                  Try solving at least 2 problems daily to improve your consistency.
+                </li>
+              )}
+              {totals.hard === 0 && totals.total > 0 && (
+                <li className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
+                  <span className="text-red-400">•</span>
+                  No Hard problems this period. Tackling one Hard problem a week can significantly boost your skills!
+                </li>
+              )}
+              {totals.total === 0 && (
+                <li className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
+                  <span className="text-indigo-400">•</span>
+                  Start solving problems to build your analytics! Every problem solved is tracked here.
+                </li>
+              )}
+            </ul>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// Generate mock data as fallback
+function generateMockData(range: TimeRange): AnalyticsData {
+  const dailyStats: DailyStats[] = [];
   const now = new Date();
   const days = range === 'weekly' ? 7 : range === 'monthly' ? 30 : 365;
 
@@ -24,7 +296,7 @@ function generateMockData(range: TimeRange): DailyStats[] {
     const easy = Math.floor(Math.random() * 3);
     const medium = Math.floor(Math.random() * 2);
     const hard = Math.floor(Math.random() * 1);
-    data.push({
+    dailyStats.push({
       date: date.toISOString().split('T')[0],
       easy,
       medium,
@@ -32,19 +304,8 @@ function generateMockData(range: TimeRange): DailyStats[] {
       total: easy + medium + hard,
     });
   }
-  return data;
-}
 
-interface PracticeAnalyticsProps {
-  userStreak: number;
-}
-
-export function PracticeAnalytics({ userStreak }: PracticeAnalyticsProps) {
-  const [timeRange, setTimeRange] = useState<TimeRange>('weekly');
-  const data = generateMockData(timeRange);
-
-  // Calculate totals
-  const totals = data.reduce(
+  const totals = dailyStats.reduce(
     (acc, day) => ({
       easy: acc.easy + day.easy,
       medium: acc.medium + day.medium,
@@ -54,207 +315,18 @@ export function PracticeAnalytics({ userStreak }: PracticeAnalyticsProps) {
     { easy: 0, medium: 0, hard: 0, total: 0 }
   );
 
-  // Calculate average per day
-  const avgPerDay = (totals.total / data.length).toFixed(1);
+  const bestDay = dailyStats.reduce((max, day) => (day.total > max.total ? day : max), dailyStats[0]);
+  const avgPerDay = (totals.total / dailyStats.length).toFixed(1);
 
-  // Find best day
-  const bestDay = data.reduce((max, day) => (day.total > max.total ? day : max), data[0]);
-
-  // Calculate streak days in current range
-  let currentStreak = 0;
-  for (let i = data.length - 1; i >= 0; i--) {
-    if (data[i].total > 0) {
-      currentStreak++;
-    } else {
-      break;
-    }
-  }
-
-  // Get recent days for chart
-  const recentDays = timeRange === 'weekly' ? data : data.slice(-14);
-  const maxValue = Math.max(...recentDays.map((d) => d.total), 1);
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-white">Practice Analytics</h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Track your problem-solving progress
-          </p>
-        </div>
-        {/* Time Range Selector */}
-        <div className="flex gap-1 p-1 bg-slate-800 rounded-lg">
-          {(['weekly', 'monthly', 'yearly'] as TimeRange[]).map((range) => (
-            <button
-              key={range}
-              onClick={() => setTimeRange(range)}
-              className={`px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors ${
-                timeRange === range
-                  ? 'bg-indigo-500 text-white'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {range}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Solved"
-          value={totals.total}
-          icon={<CheckIcon className="w-5 h-5" />}
-          color="indigo"
-        />
-        <StatCard
-          title="Current Streak"
-          value={`${userStreak} days`}
-          icon={<FireIcon className="w-5 h-5" />}
-          color="orange"
-        />
-        <StatCard
-          title="Avg. Per Day"
-          value={avgPerDay}
-          icon={<ChartIcon className="w-5 h-5" />}
-          color="emerald"
-        />
-        <StatCard
-          title="Best Day"
-          value={`${bestDay.total} problems`}
-          subtitle={formatDate(bestDay.date)}
-          icon={<TrophyIcon className="w-5 h-5" />}
-          color="amber"
-        />
-      </div>
-
-      {/* Difficulty Breakdown */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Difficulty Breakdown</h3>
-        <div className="grid grid-cols-3 gap-4">
-          <DifficultyCard
-            label="Easy"
-            count={totals.easy}
-            total={totals.total}
-            color="emerald"
-          />
-          <DifficultyCard
-            label="Medium"
-            count={totals.medium}
-            total={totals.total}
-            color="amber"
-          />
-          <DifficultyCard
-            label="Hard"
-            count={totals.hard}
-            total={totals.total}
-            color="red"
-          />
-        </div>
-      </div>
-
-      {/* Activity Chart */}
-      <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-        <h3 className="text-sm font-semibold text-white mb-4">
-          Activity ({timeRange === 'weekly' ? 'Last 7 Days' : timeRange === 'monthly' ? 'Last 14 Days' : 'Last 14 Days'})
-        </h3>
-        <div className="flex items-end gap-1 h-32">
-          {recentDays.map((day, index) => {
-            const height = (day.total / maxValue) * 100;
-            return (
-              <div
-                key={index}
-                className="flex-1 flex flex-col items-center gap-1"
-              >
-                <div
-                  className="w-full bg-gradient-to-t from-indigo-500 to-purple-500 rounded-t-sm transition-all hover:from-indigo-400 hover:to-purple-400"
-                  style={{ height: `${Math.max(height, 4)}%` }}
-                  title={`${day.date}: ${day.total} problems`}
-                />
-                {(timeRange === 'weekly' || index % 2 === 0) && (
-                  <span className="text-xs text-slate-500">
-                    {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }).charAt(0)}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Activity Heatmap (for monthly/yearly) */}
-      {timeRange !== 'weekly' && (
-        <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6">
-          <h3 className="text-sm font-semibold text-white mb-4">Activity Heatmap</h3>
-          <div className="grid grid-cols-7 gap-1">
-            {data.slice(-28).map((day, index) => {
-              const intensity = day.total === 0 ? 0 : day.total <= 1 ? 1 : day.total <= 3 ? 2 : 3;
-              const colors = [
-                'bg-slate-700',
-                'bg-emerald-900',
-                'bg-emerald-700',
-                'bg-emerald-500',
-              ];
-              return (
-                <div
-                  key={index}
-                  className={`aspect-square rounded-sm ${colors[intensity]} transition-colors hover:ring-2 hover:ring-white/20`}
-                  title={`${day.date}: ${day.total} problems`}
-                />
-              );
-            })}
-          </div>
-          <div className="flex items-center justify-end gap-2 mt-4">
-            <span className="text-xs text-slate-500">Less</span>
-            <div className="flex gap-1">
-              <div className="w-3 h-3 rounded-sm bg-slate-700" />
-              <div className="w-3 h-3 rounded-sm bg-emerald-900" />
-              <div className="w-3 h-3 rounded-sm bg-emerald-700" />
-              <div className="w-3 h-3 rounded-sm bg-emerald-500" />
-            </div>
-            <span className="text-xs text-slate-500">More</span>
-          </div>
-        </div>
-      )}
-
-      {/* Progress Insights */}
-      <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/20 p-6">
-        <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-          <LightbulbIcon className="w-4 h-4 text-amber-400" />
-          Insights
-        </h3>
-        <ul className="space-y-3">
-          {totals.easy > totals.medium + totals.hard && (
-            <li className="text-sm text-slate-300 flex items-start gap-2">
-              <span className="text-indigo-400">•</span>
-              Great progress on Easy problems! Consider challenging yourself with more Medium problems.
-            </li>
-          )}
-          {currentStreak >= 3 && (
-            <li className="text-sm text-slate-300 flex items-start gap-2">
-              <span className="text-emerald-400">•</span>
-              Amazing! You&apos;ve been consistent for {currentStreak} days. Keep the streak going!
-            </li>
-          )}
-          {Number(avgPerDay) < 2 && (
-            <li className="text-sm text-slate-300 flex items-start gap-2">
-              <span className="text-amber-400">•</span>
-              Try solving at least 2 problems daily to improve your consistency.
-            </li>
-          )}
-          {totals.hard === 0 && (
-            <li className="text-sm text-slate-300 flex items-start gap-2">
-              <span className="text-red-400">•</span>
-              No Hard problems this period. Tackling one Hard problem a week can significantly boost your skills!
-            </li>
-          )}
-        </ul>
-      </div>
-    </div>
-  );
+  return {
+    dailyStats,
+    totals,
+    bestDay,
+    activeStreak: 3,
+    avgPerDay,
+    streakCount: 3,
+    totalProblemsSolved: totals.total,
+  };
 }
 
 // Helper Components
@@ -278,10 +350,10 @@ function StatCard({ title, value, subtitle, icon, color }: StatCardProps) {
     <div className={`rounded-xl border p-4 ${colorClasses[color]}`}>
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <span className="text-xs text-slate-400">{title}</span>
+        <span className="text-xs text-[var(--color-text-muted)]">{title}</span>
       </div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      {subtitle && <div className="text-xs text-slate-500 mt-1">{subtitle}</div>}
+      <div className="text-2xl font-bold text-[var(--color-text-primary)]">{value}</div>
+      {subtitle && <div className="text-xs text-[var(--color-text-muted)] mt-1">{subtitle}</div>}
     </div>
   );
 }
@@ -306,14 +378,14 @@ function DifficultyCard({ label, count, total, color }: DifficultyCardProps) {
       <div className={`text-2xl font-bold ${colorClasses[color].split(' ')[0]}`}>
         {count}
       </div>
-      <div className="text-sm text-slate-400">{label}</div>
-      <div className="mt-2 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+      <div className="text-sm text-[var(--color-text-muted)]">{label}</div>
+      <div className="mt-2 h-1.5 bg-[var(--color-bg-hover)] rounded-full overflow-hidden">
         <div
           className={`h-full ${colorClasses[color].split(' ')[1]} rounded-full transition-all`}
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <div className="text-xs text-slate-500 mt-1">{percentage}%</div>
+      <div className="text-xs text-[var(--color-text-muted)] mt-1">{percentage}%</div>
     </div>
   );
 }
