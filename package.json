@@ -4,9 +4,27 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:test": "next dev --turbopack -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "test:auth": "npx playwright test tests/auth.spec.ts --headed",
+    "test:rooms": "npx playwright test tests/rooms.spec.ts --headed",
+    "test:room-detail": "npx playwright test tests/room-detail.spec.ts --headed",
+    "test:profile": "npx playwright test tests/profile.spec.ts --headed",
+    "test:dashboard": "npx playwright test tests/dashboard.spec.ts --headed",
+    "test:leetcode": "npx playwright test tests/leetcode.spec.ts --headed",
+    "test:code-execution": "npx playwright test tests/code-execution.spec.ts --headed",
+    "test:notifications": "npx playwright test tests/notifications.spec.ts --headed",
+    "test:ai-chatbot": "npx playwright test tests/ai-chatbot.spec.ts --headed",
+    "test:member-management": "npx playwright test tests/member-management.spec.ts --headed",
+    "test:realtime": "npx playwright test tests/realtime.spec.ts --headed",
+    "test:navigation": "npx playwright test tests/navigation.spec.ts --headed",
+    "test:error-handling": "npx playwright test tests/error-handling.spec.ts --headed",
+    "test:landing": "npx playwright test tests/landing.spec.ts --headed",
+    "test:report": "npx playwright show-report"
   },
   "dependencies": {
     "@livekit/components-react": "^2.9.17",

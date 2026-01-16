@@ -31,10 +31,14 @@ model User {
   githubVerified   Boolean  @default(false)
   linkedinProfile  String?
   country          String?
+  timezone         String   @default("UTC") // User's timezone (e.g., "Asia/Kolkata", "America/New_York")
 
   streakCount     Int  @default(0)
   problemsSolved  Int  @default(0)
   lastTotalSolved Int?
+
+  // Notification preferences (JSON object)
+  notificationPrefs Json @default("{\"inApp\": true, \"targetReminders\": true, \"streakAlerts\": true, \"roomUpdates\": true}")
 
   rooms               Room[]               @relation("RoomPlayers")
   ownedRooms          Room[]               @relation("RoomOwner")
@@ -45,6 +49,10 @@ model User {
   AIConversations     AIConversation[]
   RoomMessages        RoomMessage[]
   CodeSubmissions     CodeSubmission[]
+  UserRoomStreak      UserRoomStreak[]
+  DailyProgress       DailyProgress[]
+  NotificationLog     NotificationLog[]
+  Notifications       Notification[]
 }
 
 model ProfileVerification {
@@ -77,6 +85,9 @@ model Room {
   StreakLog       StreakLog[]
   RoomMessages    RoomMessage[]
   CodeSubmissions CodeSubmission[]
+  UserRoomStreak  UserRoomStreak[]
+  NotificationLog NotificationLog[]
+  Notifications   Notification[]
 }
 
 // NextAuth tables
@@ -117,15 +128,70 @@ model VerificationToken {
 }
 
 model StreakLog {
-  id     String   @id @default(cuid())
-  userId String
-  roomId String
-  date   DateTime
+  id             String   @id @default(cuid())
+  userId         String
+  roomId         String
+  date           DateTime @db.Date // Date only, no time
+  problemsSolved Int      @default(0) // Problems solved that day
+  metTarget      Boolean  @default(false) // Did user meet room target?
+  createdAt      DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
   room Room @relation(fields: [roomId], references: [id])
 
   @@unique([userId, roomId, date])
+  @@index([userId, date])
+  @@index([roomId, date])
+}
+
+// Per-room streak tracking for individual users
+model UserRoomStreak {
+  id             String    @id @default(cuid())
+  userId         String
+  roomId         String
+  streakCount    Int       @default(0) // Current streak for this user in this room
+  lastActiveDate DateTime? @db.Date // Last date they met target
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+  @@index([userId])
+  @@index([roomId])
+}
+
+// Daily LeetCode stats snapshot for delta calculation
+model DailyProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @db.Date
+  totalSolved Int // Total problems solved as of this date
+  easyCount   Int      @default(0)
+  mediumCount Int      @default(0)
+  hardCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+// Notification log to prevent duplicate emails
+model NotificationLog {
+  id     String   @id @default(cuid())
+  userId String
+  roomId String?
+  type   String // "reminder_20h" | "daily_summary" | "streak_lost"
+  date   DateTime @db.Date
+  sentAt DateTime @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, roomId, type, date])
 }
 
 // AI Chatbot - Conversations
@@ -205,4 +271,24 @@ model TestCase {
   isHidden    Boolean @default(false)
 
   @@index([problemSlug])
+}
+
+// In-app Notifications
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  roomId    String?
+  roomName  String?  // Denormalized for quick display
+  type      String   // See notification types in notification-service.ts
+  title     String
+  message   String
+  link      String?  // Optional: URL to navigate on click
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }

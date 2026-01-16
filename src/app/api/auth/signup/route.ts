@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { createNotification, NotificationTemplates } from "@/lib/services/notification-service";
 
 export async function POST(req: Request) {
   const { name, email, username, password } = await req.json();
@@ -18,6 +19,17 @@ export async function POST(req: Request) {
   const user = await prisma.user.create({
     data: { name, email, username, password: hashedPassword },
   });
+
+  // Send welcome notification
+  try {
+    const welcomeTemplate = NotificationTemplates.welcome();
+    await createNotification({
+      userId: user.id,
+      ...welcomeTemplate,
+    });
+  } catch (error) {
+    console.error('Failed to create welcome notification:', error);
+  }
 
   return NextResponse.json({ user });
 }

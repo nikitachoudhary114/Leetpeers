@@ -12,11 +12,29 @@ export interface User {
   githubVerified: boolean;
   linkedinProfile: string | null;
   country: string | null;
+  timezone: string;
   streakCount: number;
   problemsSolved: number;
   lastTotalSolved: number | null;
   createdAt: Date | string;
   updatedAt: Date | string;
+}
+
+// Per-room streak info
+export interface RoomStreak {
+  roomId: string;
+  roomName: string | null;
+  roomCode: string;
+  streakCount: number;
+  lastActiveDate: Date | string | null;
+}
+
+// LeetCode stats breakdown
+export interface LeetCodeStats {
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
 }
 
 export interface RoomSummary {
@@ -89,4 +107,5 @@ export interface ProfileUpdatePayload {
   linkedinProfile?: string | null;
   country?: string | null;
   avatarUrl?: string | null;
+  timezone?: string;
 }

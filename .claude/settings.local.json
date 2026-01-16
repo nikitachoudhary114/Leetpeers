@@ -38,7 +38,11 @@
       "Bash(git commit:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx playwright:*)",
-      "Bash(node test-badge.mjs:*)"
+      "Bash(node test-badge.mjs:*)",
+      "Bash(wmic process where \"name=''node.exe''\" get processid,commandline)",
+      "Bash(tasklist:*)",
+      "Bash(npx kill-port 3000 3001)",
+      "Bash(npm run dev:test:*)"
     ]
   }
 }

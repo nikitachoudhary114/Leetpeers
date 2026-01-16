@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
+import { createNotification, NotificationTemplates } from "@/lib/services/notification-service";
 
 const schema = z.object({
   userIdToKick: z.string(),
@@ -54,6 +55,19 @@ export async function POST(
       },
       include: { players: true },
     });
+
+    // Notify the kicked user
+    try {
+      const roomName = room.name || 'the room';
+      const template = NotificationTemplates.kickedFromRoom(roomName);
+      await createNotification({
+        userId: userIdToKick,
+        roomId: roomId,
+        ...template,
+      });
+    } catch (error) {
+      console.error('Failed to create kick notification:', error);
+    }
 
     return NextResponse.json({ success: true, room: updatedRoom });
   } catch (err) {

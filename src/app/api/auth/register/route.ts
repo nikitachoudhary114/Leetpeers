@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { createNotification, NotificationTemplates } from "@/lib/services/notification-service";
 
 const userSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -28,6 +29,17 @@ export async function POST(req: Request) {
     const user = await prisma.user.create({
       data: { email, username, password: hashed },
     });
+
+    // Send welcome notification
+    try {
+      const welcomeTemplate = NotificationTemplates.welcome();
+      await createNotification({
+        userId: user.id,
+        ...welcomeTemplate,
+      });
+    } catch (error) {
+      console.error('Failed to create welcome notification:', error);
+    }
 
     return NextResponse.json(user);
   } catch (err: any) {

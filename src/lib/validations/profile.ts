@@ -24,6 +24,7 @@ export const profileSchema = z.object({
     .nullable()
     .or(z.literal('')),
   country: z.string().max(100, 'Country name too long').optional().nullable(),
+  timezone: z.string().max(50, 'Timezone too long').optional(),
   avatarUrl: z
     .string()
     .optional()
@@ -43,6 +44,14 @@ export const profileSchema = z.object({
       },
       { message: 'Invalid avatar URL or character avatar ID' }
     ),
+  notificationPrefs: z
+    .object({
+      inApp: z.boolean().optional(),
+      targetReminders: z.boolean().optional(),
+      streakAlerts: z.boolean().optional(),
+      roomUpdates: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;

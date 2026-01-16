@@ -5,3 +5,4 @@ export { MembersList } from './MembersList';
 export { Leaderboard } from './Leaderboard';
 export { ProblemsSection } from './ProblemsSection';
 export { SolutionsSection } from './SolutionsSection';
+export { DailyProgressCard } from './DailyProgressCard';

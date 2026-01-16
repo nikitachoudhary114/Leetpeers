@@ -1,10 +1,28 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import type { UserWithRooms, ProfileUpdatePayload } from '@/types';
+import { useState, useCallback, useEffect } from 'react';
+import type { UserWithRooms, ProfileUpdatePayload, RoomStreak, LeetCodeStats } from '@/types';
 import { VerifiableProfileSection } from './components/VerifiableProfileSection';
 import { Avatar } from '@/components/ui/Avatar';
 import { AvatarSelector, CHARACTER_AVATARS } from '@/components/CharacterAvatars';
+
+// Common timezones for dropdown
+const COMMON_TIMEZONES = [
+  { value: 'UTC', label: 'UTC' },
+  { value: 'America/New_York', label: 'Eastern Time (US)' },
+  { value: 'America/Chicago', label: 'Central Time (US)' },
+  { value: 'America/Denver', label: 'Mountain Time (US)' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (US)' },
+  { value: 'Europe/London', label: 'London (UK)' },
+  { value: 'Europe/Paris', label: 'Paris (France)' },
+  { value: 'Europe/Berlin', label: 'Berlin (Germany)' },
+  { value: 'Asia/Dubai', label: 'Dubai (UAE)' },
+  { value: 'Asia/Kolkata', label: 'India (IST)' },
+  { value: 'Asia/Singapore', label: 'Singapore' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (Japan)' },
+  { value: 'Asia/Shanghai', label: 'Shanghai (China)' },
+  { value: 'Australia/Sydney', label: 'Sydney (Australia)' },
+];
 
 interface ProfileContainerProps {
   initialUser: UserWithRooms;
@@ -14,6 +32,76 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
   const [user, setUser] = useState<UserWithRooms>(initialUser);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [roomStreaks, setRoomStreaks] = useState<RoomStreak[]>([]);
+  const [leetCodeStats, setLeetCodeStats] = useState<LeetCodeStats | null>(null);
+
+  // Fetch sync status on mount
+  useEffect(() => {
+    if (user.leetcodeVerified) {
+      fetchSyncStatus();
+    }
+  }, [user.leetcodeVerified]);
+
+  const fetchSyncStatus = async () => {
+    try {
+      const res = await fetch('/api/user/sync-leetcode');
+      if (res.ok) {
+        const data = await res.json();
+        setRoomStreaks(data.roomStreaks || []);
+        if (data.latestProgress) {
+          setLeetCodeStats({
+            totalSolved: data.latestProgress.totalSolved,
+            easySolved: data.latestProgress.easyCount,
+            mediumSolved: data.latestProgress.mediumCount,
+            hardSolved: data.latestProgress.hardCount,
+          });
+        }
+      }
+    } catch {
+      // Silent fail for initial fetch
+    }
+  };
+
+  const handleSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    setGlobalError(null);
+    setGlobalSuccess(null);
+
+    try {
+      const res = await fetch('/api/user/sync-leetcode', { method: 'POST' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setGlobalError(data.error || 'Failed to sync LeetCode stats');
+        return;
+      }
+
+      setGlobalSuccess('LeetCode stats synced successfully!');
+      setRoomStreaks(data.roomStreaks || []);
+      if (data.stats) {
+        setLeetCodeStats({
+          totalSolved: data.stats.totalSolved,
+          easySolved: data.stats.easySolved,
+          mediumSolved: data.stats.mediumSolved,
+          hardSolved: data.stats.hardSolved,
+        });
+      }
+      if (data.user) {
+        setUser((prev) => ({
+          ...prev,
+          problemsSolved: data.user.problemsSolved,
+          streakCount: data.user.streakCount,
+        }));
+      }
+      setTimeout(() => setGlobalSuccess(null), 3000);
+    } catch {
+      setGlobalError('Network error. Please try again.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleUpdate = useCallback(
     async (data: ProfileUpdatePayload): Promise<boolean> => {
@@ -133,6 +221,88 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
         </div>
       </div>
 
+      {/* LeetCode Stats Breakdown (if available) */}
+      {leetCodeStats && (
+        <div className="bg-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                <LeetCodeIcon />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">LeetCode Stats</h3>
+                <p className="text-sm text-[var(--color-text-muted)]">Problem breakdown by difficulty</p>
+              </div>
+            </div>
+            <button
+              onClick={handleSync}
+              disabled={isSyncing || !user.leetcodeVerified}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {isSyncing ? 'Syncing...' : 'Sync'}
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-green-500/10 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-green-400">{leetCodeStats.easySolved}</p>
+              <p className="text-sm text-[var(--color-text-muted)]">Easy</p>
+            </div>
+            <div className="bg-amber-500/10 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-amber-400">{leetCodeStats.mediumSolved}</p>
+              <p className="text-sm text-[var(--color-text-muted)]">Medium</p>
+            </div>
+            <div className="bg-red-500/10 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-red-400">{leetCodeStats.hardSolved}</p>
+              <p className="text-sm text-[var(--color-text-muted)]">Hard</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Per-Room Streaks */}
+      {roomStreaks.length > 0 && (
+        <div className="bg-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Your Room Streaks</h3>
+              <p className="text-sm text-[var(--color-text-muted)]">Track your consistency in each room</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {roomStreaks.map((streak) => (
+              <div
+                key={streak.roomId}
+                className="flex items-center justify-between p-3 bg-[var(--color-bg-tertiary)] rounded-xl"
+              >
+                <div>
+                  <p className="font-medium text-[var(--color-text-primary)]">
+                    {streak.roomName || `Room ${streak.roomCode}`}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-muted)]">Code: {streak.roomCode}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-400 text-lg">
+                    {streak.streakCount > 0 ? '🔥' : ''}
+                  </span>
+                  <span className="text-xl font-bold text-[var(--color-text-primary)]">
+                    {streak.streakCount}
+                  </span>
+                  <span className="text-sm text-[var(--color-text-muted)]">days</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* LeetCode Section */}
       <VerifiableProfileSection
         title="LeetCode Account"
@@ -174,6 +344,18 @@ export default function ProfileContainer({ initialUser }: ProfileContainerProps)
           }));
         }}
       />
+
+      {/* Timezone Settings */}
+      <TimezoneSection
+        currentTimezone={user.timezone || 'UTC'}
+        onUpdate={handleUpdate}
+        onTimezoneChange={(timezone) => {
+          setUser((prev) => ({ ...prev, timezone }));
+        }}
+      />
+
+      {/* Notification Preferences */}
+      <NotificationPreferencesSection />
 
       {/* Personal Info Section */}
       <PersonalInfoSection user={user} onUpdate={handleUpdate} />
@@ -271,6 +453,212 @@ function AvatarSelectionSection({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Timezone Section
+function TimezoneSection({
+  currentTimezone,
+  onUpdate,
+  onTimezoneChange,
+}: {
+  currentTimezone: string;
+  onUpdate: (data: ProfileUpdatePayload) => Promise<boolean>;
+  onTimezoneChange: (timezone: string) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedTimezone, setSelectedTimezone] = useState(currentTimezone);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    const success = await onUpdate({ timezone: selectedTimezone });
+    setIsLoading(false);
+    if (success) {
+      onTimezoneChange(selectedTimezone);
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setSelectedTimezone(currentTimezone);
+    setIsEditing(false);
+  };
+
+  const currentLabel = COMMON_TIMEZONES.find((tz) => tz.value === currentTimezone)?.label || currentTimezone;
+
+  return (
+    <div className="bg-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Timezone</h3>
+            <p className="text-sm text-[var(--color-text-muted)]">Set your timezone for accurate daily tracking</p>
+          </div>
+        </div>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-sm text-indigo-500 hover:text-indigo-400 font-medium transition-colors"
+          >
+            Change
+          </button>
+        )}
+      </div>
+
+      {isEditing ? (
+        <div className="space-y-4">
+          <select
+            value={selectedTimezone}
+            onChange={(e) => setSelectedTimezone(e.target.value)}
+            className="w-full px-4 py-3 bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-[var(--color-border-hover)]"
+          >
+            {COMMON_TIMEZONES.map((tz) => (
+              <option key={tz.value} value={tz.value}>
+                {tz.label}
+              </option>
+            ))}
+          </select>
+          <div className="flex gap-3">
+            <button
+              onClick={handleSave}
+              disabled={isLoading}
+              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              {isLoading ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 bg-[var(--color-bg-hover)] hover:bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] rounded-lg text-sm font-medium transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-2">
+          <p className="text-[var(--color-text-primary)]">{currentLabel}</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">
+            Daily targets reset at midnight in your timezone
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Notification Preferences Section
+function NotificationPreferencesSection() {
+  const [prefs, setPrefs] = useState({
+    inApp: true,
+    targetReminders: true,
+    streakAlerts: true,
+    roomUpdates: true,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    // Load preferences from API
+    fetch('/api/profile')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user?.notificationPrefs) {
+          try {
+            const parsed = typeof data.user.notificationPrefs === 'string'
+              ? JSON.parse(data.user.notificationPrefs)
+              : data.user.notificationPrefs;
+            setPrefs(parsed);
+          } catch {
+            // Keep defaults
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggle = async (key: keyof typeof prefs) => {
+    const newPrefs = { ...prefs, [key]: !prefs[key] };
+    setPrefs(newPrefs);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationPrefs: newPrefs }),
+      });
+
+      if (res.ok) {
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 2000);
+      }
+    } catch {
+      // Revert on error
+      setPrefs(prefs);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleOptions = [
+    { key: 'inApp' as const, label: 'In-App Notifications', description: 'Show notifications in the bell icon' },
+    { key: 'targetReminders' as const, label: 'Target Reminders', description: 'Remind me before daily target deadline' },
+    { key: 'streakAlerts' as const, label: 'Streak Alerts', description: 'Notify me about streak milestones and risks' },
+    { key: 'roomUpdates' as const, label: 'Room Updates', description: 'New members, target changes, etc.' },
+  ];
+
+  return (
+    <div className="bg-[var(--color-bg-secondary)] rounded-2xl border border-[var(--color-border)] p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Notification Preferences</h3>
+          <p className="text-sm text-[var(--color-text-muted)]">Control what notifications you receive</p>
+        </div>
+        {success && (
+          <span className="ml-auto text-sm text-green-400 animate-fade-in">Saved!</span>
+        )}
+      </div>
+
+      <div className="space-y-4">
+        {toggleOptions.map((option) => (
+          <div
+            key={option.key}
+            className="flex items-center justify-between p-3 bg-[var(--color-bg-tertiary)] rounded-xl"
+          >
+            <div>
+              <p className="font-medium text-[var(--color-text-primary)]">{option.label}</p>
+              <p className="text-sm text-[var(--color-text-muted)]">{option.description}</p>
+            </div>
+            <button
+              onClick={() => handleToggle(option.key)}
+              disabled={isLoading}
+              className={`relative w-12 h-7 rounded-full transition-colors ${
+                prefs[option.key]
+                  ? 'bg-indigo-500'
+                  : 'bg-[var(--color-bg-secondary)]'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                  prefs[option.key] ? 'left-6' : 'left-1'
+                }`}
+              />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

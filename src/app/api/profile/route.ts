@@ -28,8 +28,10 @@ export async function GET() {
         bio: true,
         avatarUrl: true,
         country: true,
+        timezone: true,
         streakCount: true,
         problemsSolved: true,
+        notificationPrefs: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -108,6 +110,8 @@ export async function PUT(req: Request) {
       data.linkedinProfile = validatedData.linkedinProfile || null;
     }
     if (validatedData.country !== undefined) data.country = validatedData.country;
+    if (validatedData.timezone !== undefined) data.timezone = validatedData.timezone;
+    if (validatedData.notificationPrefs !== undefined) data.notificationPrefs = validatedData.notificationPrefs;
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
@@ -125,8 +129,10 @@ export async function PUT(req: Request) {
         bio: true,
         avatarUrl: true,
         country: true,
+        timezone: true,
         streakCount: true,
         problemsSolved: true,
+        notificationPrefs: true,
         updatedAt: true,
       },
     });

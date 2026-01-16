@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { createBulkNotifications, NotificationTemplates } from "@/lib/services/notification-service";
 
 const schema = z.object({
   dailyTarget: z.number().min(1, "Target must be at least 1"),
@@ -18,7 +19,10 @@ export async function POST(
     const { id: roomId } = await params;
     const { dailyTarget } = schema.parse(await req.json());
 
-    const room = await prisma.room.findUnique({ where: { id: roomId } });
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
+      include: { players: { select: { id: true } } },
+    });
     if (!room)
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
@@ -29,10 +33,35 @@ export async function POST(
       );
     }
 
+    const oldTarget = room.dailyTarget;
+
     const updatedRoom = await prisma.room.update({
       where: { id: roomId },
       data: { dailyTarget },
     });
+
+    // Notify all room members if target changed
+    if (oldTarget !== dailyTarget) {
+      try {
+        const roomName = room.name || 'the room';
+        const template = NotificationTemplates.roomTargetChanged(roomName, oldTarget, dailyTarget);
+
+        const notifications = room.players
+          .filter(player => player.id !== userId) // Don't notify the owner who made the change
+          .map(player => ({
+            userId: player.id,
+            roomId: roomId,
+            ...template,
+            link: `/rooms/${roomId}`,
+          }));
+
+        if (notifications.length > 0) {
+          await createBulkNotifications(notifications);
+        }
+      } catch (error) {
+        console.error('Failed to create target change notifications:', error);
+      }
+    }
 
     return NextResponse.json({ success: true, room: updatedRoom });
   } catch (err) {

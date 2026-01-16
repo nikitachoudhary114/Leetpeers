@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { NotificationBell } from '@/components/NotificationBell';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -53,8 +54,13 @@ export function Navbar() {
             })}
           </div>
 
-          {/* User Menu */}
-          <div className="relative">
+          {/* Right Side: Notification Bell + User Menu */}
+          <div className="flex items-center gap-2">
+            {/* Notification Bell */}
+            <NotificationBell />
+
+            {/* User Menu */}
+            <div className="relative">
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--color-bg-tertiary)] transition-colors"
@@ -124,6 +130,7 @@ export function Navbar() {
                 </div>
               </>
             )}
+            </div>
           </div>
         </div>
       </div>

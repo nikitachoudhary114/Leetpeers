@@ -16,6 +16,7 @@ import {
 } from './components';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
+import { NotificationBell } from '@/components/NotificationBell';
 
 interface Room {
   id: string;
@@ -117,6 +118,9 @@ export function DashboardContainer({ user, rooms }: DashboardContainerProps) {
               >
                 Rooms
               </Link>
+
+              {/* Notification Bell */}
+              <NotificationBell />
 
               {/* User Menu */}
               <div className="relative">
