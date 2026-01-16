@@ -4,29 +4,48 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const ALLOWED_FIELDS = [
+  "name",
+  "leetcodeProfile",
+  "bio",
+  "avatarUrl",
+  "githubProfile",
+  "linkedinProfile",
+  "country",
+] as const;
+
+type UpdatableField = (typeof ALLOWED_FIELDS)[number];
+
 export async function PUT(req: NextRequest) {
   try {
-    // ✅ Pass req to getServerSession in App Router
-    const session = await getServerSession({ req, ...authOptions });
+    // ✅ Authenticate user
+    const session = await getServerSession(authOptions);
 
-    if (!session || !session.user?.id) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 }
+      );
     }
 
     const userId = session.user.id;
     const body = await req.json();
 
-    const data: Record<string, any> = {};
-    if (body.name !== undefined) data.name = body.name;
-    if (body.leetcodeProfile !== undefined)
-      data.leetcodeProfile = body.leetcodeProfile;
-    if (body.bio !== undefined) data.bio = body.bio;
-    if (body.avatarUrl !== undefined) data.avatarUrl = body.avatarUrl;
-    if (body.githubProfile !== undefined)
-      data.githubProfile = body.githubProfile;
-    if (body.linkedinProfile !== undefined)
-      data.linkedinProfile = body.linkedinProfile;
-    if (body.country !== undefined) data.country = body.country;
+    // ✅ Build update payload safely
+    const data: Partial<Record<UpdatableField, string>> = {};
+
+    for (const field of ALLOWED_FIELDS) {
+      if (body[field] !== undefined) {
+        data[field] = body[field];
+      }
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { error: "No valid fields to update" },
+        { status: 400 }
+      );
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -50,7 +69,7 @@ export async function PUT(req: NextRequest) {
       message: "Profile updated successfully",
       user: updatedUser,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update profile error:", error);
     return NextResponse.json(
       { error: "Failed to update profile" },
