@@ -30,10 +30,9 @@ export function VideoSection({ roomId, players, currentUserId }: VideoSectionPro
   const [isInCall, setIsInCall] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
+  const [livekitUrl, setLivekitUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 
   // Check if LiveKit is configured on mount
   useEffect(() => {
@@ -42,6 +41,9 @@ export function VideoSection({ roomId, players, currentUserId }: VideoSectionPro
         const response = await fetch('/api/livekit/token');
         const data = await response.json();
         setIsConfigured(data.configured && data.hasUrl);
+        if (data.serverUrl) {
+          setLivekitUrl(data.serverUrl);
+        }
       } catch {
         setIsConfigured(false);
       }
@@ -72,6 +74,9 @@ export function VideoSection({ roomId, players, currentUserId }: VideoSectionPro
       }
 
       setToken(data.token);
+      if (data.serverUrl) {
+        setLivekitUrl(data.serverUrl);
+      }
       setIsInCall(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to join call');

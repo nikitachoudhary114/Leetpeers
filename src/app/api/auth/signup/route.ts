@@ -12,24 +12,32 @@ export async function POST(req: Request) {
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser)
-    return NextResponse.json({ error: "User already exists" }, { status: 400 });
+    return NextResponse.json({ error: "Email already exists" }, { status: 400 });
+
+  const existingUsername = await prisma.user.findUnique({ where: { username } });
+  if (existingUsername)
+    return NextResponse.json({ error: "Username already exists" }, { status: 400 });
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await prisma.user.create({
-    data: { name, email, username, password: hashedPassword },
-  });
-
-  // Send welcome notification
   try {
-    const welcomeTemplate = NotificationTemplates.welcome();
-    await createNotification({
-      userId: user.id,
-      ...welcomeTemplate,
+    const user = await prisma.user.create({
+      data: { name, email, username, password: hashedPassword },
     });
-  } catch (error) {
-    console.error('Failed to create welcome notification:', error);
-  }
 
-  return NextResponse.json({ user });
+    // Send welcome notification
+    try {
+      const welcomeTemplate = NotificationTemplates.welcome();
+      await createNotification({
+        userId: user.id,
+        ...welcomeTemplate,
+      });
+    } catch (error) {
+      console.error('Failed to create welcome notification:', error);
+    }
+
+    return NextResponse.json({ user });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Registration failed" }, { status: 500 });
+  }
 }

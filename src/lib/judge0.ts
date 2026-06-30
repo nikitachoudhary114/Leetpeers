@@ -1,5 +1,8 @@
 // Piston API Client for Code Execution (Free, no API key needed)
 // Documentation: https://github.com/engineer-man/piston
+import * as fs from 'fs';
+import * as path from 'path';
+import { exec } from 'child_process';
 
 const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
 
@@ -193,6 +196,125 @@ function normalizeOutput(output: string): string {
 }
 
 // Execute code using Piston API
+// Local execution helper when Piston API is blocked or offline
+async function executeCodeLocally(
+  code: string,
+  language: string,
+  stdin: string = ''
+): Promise<{
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  compileOutput: string | null;
+}> {
+  const tempDir = path.join(process.cwd(), '.tmp_compile');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+
+  const runId = Math.random().toString(36).substring(7);
+  let fileName = '';
+  let command = '';
+  let compileCommand = '';
+
+  const lang = language.toLowerCase();
+  if (lang === 'python') {
+    fileName = `temp_${runId}.py`;
+    command = `python3 ${fileName}`;
+  } else if (lang === 'javascript') {
+    fileName = `temp_${runId}.js`;
+    command = `node ${fileName}`;
+  } else if (lang === 'cpp' || lang === 'c') {
+    fileName = `temp_${runId}.cpp`;
+    const binName = `bin_${runId}`;
+    compileCommand = `g++ -O3 ${fileName} -o ${binName}`;
+    command = `./${binName}`;
+  } else if (lang === 'java') {
+    // Java class name must match file name (Main class from test harness wrapper)
+    fileName = 'Main.java';
+    const runDir = path.join(tempDir, `run_${runId}`);
+    fs.mkdirSync(runDir, { recursive: true });
+
+    const filePath = path.join(runDir, fileName);
+    fs.writeFileSync(filePath, code);
+
+    return new Promise((resolve) => {
+      exec('javac Main.java', { cwd: runDir, timeout: 5000 }, (compileError, cStdout, cStderr) => {
+        if (compileError) {
+          fs.rmSync(runDir, { recursive: true, force: true });
+          resolve({
+            stdout: '',
+            stderr: '',
+            exitCode: 1,
+            compileOutput: cStderr || cStdout || 'Compilation failed',
+          });
+          return;
+        }
+
+        exec('java Main', { cwd: runDir, timeout: 5000 }, (runError, stdout, stderr) => {
+          fs.rmSync(runDir, { recursive: true, force: true });
+          resolve({
+            stdout: stdout || '',
+            stderr: stderr || '',
+            exitCode: runError ? (runError.code || 1) : 0,
+            compileOutput: null,
+          });
+        });
+      });
+    });
+  } else {
+    throw new Error(`Local execution not supported for language: ${language}`);
+  }
+
+  const filePath = path.join(tempDir, fileName);
+  fs.writeFileSync(filePath, code);
+
+  return new Promise((resolve) => {
+    const runExec = () => {
+      exec(command, { cwd: tempDir, timeout: 5000 }, (runError, stdout, stderr) => {
+        // Clean up temp files
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+          if (lang === 'cpp' || lang === 'c') {
+            const binPath = path.join(tempDir, `bin_${runId}`);
+            if (fs.existsSync(binPath)) fs.unlinkSync(binPath);
+          }
+        } catch (e) {
+          console.error('Failed to cleanup temp files:', e);
+        }
+
+        resolve({
+          stdout: stdout || '',
+          stderr: stderr || '',
+          exitCode: runError ? (runError.code || 1) : 0,
+          compileOutput: null,
+        });
+      });
+    };
+
+    if (compileCommand) {
+      exec(compileCommand, { cwd: tempDir, timeout: 5000 }, (compileError, cStdout, cStderr) => {
+        if (compileError) {
+          try {
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+          } catch (e) {}
+          resolve({
+            stdout: '',
+            stderr: '',
+            exitCode: 1,
+            compileOutput: cStderr || cStdout || 'Compilation failed',
+          });
+          return;
+        }
+        runExec();
+      });
+    } else {
+      runExec();
+    }
+  });
+}
+
+// Execute code using Piston API, falling back to local compilation if blocked/whitelisted
 export async function executeCode(
   code: string,
   language: string,
@@ -208,34 +330,43 @@ export async function executeCode(
     throw new Error(`Unsupported language: ${language}`);
   }
 
-  const request: PistonRequest = {
-    language: langConfig.language,
-    version: langConfig.version,
-    files: [{ content: code }],
-    stdin,
-  };
+  try {
+    const request: PistonRequest = {
+      language: langConfig.language,
+      version: langConfig.version,
+      files: [{ content: code }],
+      stdin,
+    };
 
-  const response = await fetch(PISTON_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  });
+    const response = await fetch(PISTON_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Piston execution failed: ${error}`);
+    if (!response.ok) {
+      throw new Error(`HTTP status ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // Check if the response contains whitelist instructions or error messages
+    if (result.message && result.message.includes('whitelist')) {
+      throw new Error('Piston API requires whitelist activation');
+    }
+
+    return {
+      stdout: result.run.stdout || '',
+      stderr: result.run.stderr || '',
+      exitCode: result.run.code,
+      compileOutput: result.compile?.stderr || result.compile?.stdout || null,
+    };
+  } catch (error) {
+    console.log('Piston execution failed (whitelisted or offline). Falling back to local execution:', error);
+    return executeCodeLocally(code, language, stdin);
   }
-
-  const result: PistonResponse = await response.json();
-
-  return {
-    stdout: result.run.stdout || '',
-    stderr: result.run.stderr || '',
-    exitCode: result.run.code,
-    compileOutput: result.compile?.stderr || result.compile?.stdout || null,
-  };
 }
 
 // Run code against a single test case

@@ -577,3 +577,174 @@ export async function getUserAllRoomStreaks(userId: string): Promise<
     return [];
   }
 }
+
+/**
+ * Increment a user's solved count inside a specific room (for in-app submissions)
+ */
+export async function incrementUserRoomProgress(
+  userId: string,
+  roomId: string
+): Promise<{
+  success: boolean;
+  problemsSolved: number;
+  streakCount: number;
+  metTarget: boolean;
+  error?: string;
+}> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { timezone: true },
+    });
+
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { name: true, dailyTarget: true },
+    });
+
+    if (!room) {
+      return { success: false, problemsSolved: 0, streakCount: 0, metTarget: false, error: 'Room not found' };
+    }
+
+    const roomName = room.name || 'the room';
+    const dailyTarget = room.dailyTarget;
+    const today = getStartOfDayInTimezone(new Date(), user?.timezone || 'UTC');
+
+    // Get or create today's StreakLog
+    const existingLog = await prisma.streakLog.findUnique({
+      where: {
+        userId_roomId_date: {
+          userId,
+          roomId,
+          date: today,
+        },
+      },
+    });
+
+    let solvedToday = 1;
+    let metTargetBefore = false;
+
+    if (existingLog) {
+      metTargetBefore = existingLog.metTarget;
+      const updatedLog = await prisma.streakLog.update({
+        where: { id: existingLog.id },
+        data: {
+          problemsSolved: { increment: 1 },
+        },
+      });
+      solvedToday = updatedLog.problemsSolved;
+    } else {
+      const newLog = await prisma.streakLog.create({
+        data: {
+          userId,
+          roomId,
+          date: today,
+          problemsSolved: 1,
+          metTarget: false,
+        },
+      });
+      solvedToday = newLog.problemsSolved;
+    }
+
+    const metTarget = solvedToday >= dailyTarget;
+
+    // Get or create UserRoomStreak
+    let userRoomStreak = await prisma.userRoomStreak.findUnique({
+      where: {
+        userId_roomId: { userId, roomId },
+      },
+    });
+
+    if (!userRoomStreak) {
+      userRoomStreak = await prisma.userRoomStreak.create({
+        data: {
+          userId,
+          roomId,
+          streakCount: 0,
+          lastActiveDate: null,
+        },
+      });
+    }
+
+    let newStreakCount = userRoomStreak.streakCount;
+
+    // If target is met now but was not met before, update streak!
+    if (metTarget) {
+      // Update StreakLog metTarget status to true
+      await prisma.streakLog.update({
+        where: {
+          userId_roomId_date: {
+            userId,
+            roomId,
+            date: today,
+          },
+        },
+        data: { metTarget: true },
+      });
+
+      if (!metTargetBefore) {
+        // Calculate new streak count
+        if (
+          userRoomStreak.lastActiveDate &&
+          isYesterday(userRoomStreak.lastActiveDate, today)
+        ) {
+          newStreakCount = userRoomStreak.streakCount + 1;
+        } else if (userRoomStreak.streakCount === 0 || !userRoomStreak.lastActiveDate) {
+          newStreakCount = 1;
+        } else {
+          // Gap in activity - reset to 1
+          newStreakCount = 1;
+        }
+
+        // Update UserRoomStreak
+        await prisma.userRoomStreak.update({
+          where: { id: userRoomStreak.id },
+          data: {
+            streakCount: newStreakCount,
+            lastActiveDate: today,
+          },
+        });
+
+        // Send notifications
+        try {
+          const template = NotificationTemplates.targetMet(roomName, newStreakCount);
+          await createNotification({
+            userId,
+            roomId,
+            ...template,
+            link: `/rooms/${roomId}`,
+          });
+
+          // Check for streak milestone
+          if (STREAK_MILESTONES.includes(newStreakCount)) {
+            const milestoneTemplate = NotificationTemplates.streakMilestone(roomName, newStreakCount);
+            await createNotification({
+              userId,
+              roomId,
+              ...milestoneTemplate,
+              link: `/rooms/${roomId}`,
+            });
+          }
+        } catch (notifError) {
+          console.error('Failed to send streak notification:', notifError);
+        }
+      }
+    }
+
+    return {
+      success: true,
+      problemsSolved: solvedToday,
+      streakCount: newStreakCount,
+      metTarget,
+    };
+  } catch (error) {
+    console.error(`Failed to increment progress for user ${userId} in room ${roomId}:`, error);
+    return {
+      success: false,
+      problemsSolved: 0,
+      streakCount: 0,
+      metTarget: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}

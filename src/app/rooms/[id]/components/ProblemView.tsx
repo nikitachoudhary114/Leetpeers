@@ -579,13 +579,13 @@ function generateHiddenTestCases(problem: Problem): Array<{ input: string; expec
   // Add some edge cases based on problem type
   if (problem.id === 1) { // Two Sum
     hiddenCases.push(
-      { input: '[1,2,3,4,5]\n9', expected: '[3,4]', isHidden: true },
-      { input: '[0,4,3,0]\n0', expected: '[0,3]', isHidden: true },
+      { input: 'nums = [1,2,3,4,5], target = 9', expected: '[3,4]', isHidden: true },
+      { input: 'nums = [0,4,3,0], target = 0', expected: '[0,3]', isHidden: true },
     );
   } else if (problem.id === 2) { // Valid Parentheses
     hiddenCases.push(
-      { input: '((()))', expected: 'true', isHidden: true },
-      { input: '([)]', expected: 'false', isHidden: true },
+      { input: 's = "((())"', expected: 'true', isHidden: true },
+      { input: 's = "([)]"', expected: 'false', isHidden: true },
     );
   }
 

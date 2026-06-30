@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/authOptions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { runTestCase } from '@/lib/judge0';
+import { incrementUserRoomProgress } from '@/lib/services/streak-service';
 
 interface TestCase {
   input: string;
@@ -131,6 +132,23 @@ export async function POST(req: Request) {
           where: { id: session.user.id },
           data: { problemsSolved: { increment: 1 } },
         });
+      }
+
+      // Update room progress if solved inside a room
+      if (roomId) {
+        const existingAcceptedInRoom = await prisma.codeSubmission.findFirst({
+          where: {
+            userId: session.user.id,
+            roomId,
+            problemSlug,
+            status: 'accepted',
+            id: { not: submission.id },
+          },
+        });
+
+        if (!existingAcceptedInRoom) {
+          await incrementUserRoomProgress(session.user.id, roomId);
+        }
       }
     }
 

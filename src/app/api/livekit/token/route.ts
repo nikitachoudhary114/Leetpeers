@@ -58,6 +58,7 @@ export async function POST(req: Request) {
       token,
       identity: participantIdentity,
       name: participantName,
+      serverUrl: process.env.NEXT_PUBLIC_LIVEKIT_URL,
     });
   } catch (error) {
     console.error('LiveKit token error:', error);
@@ -76,5 +77,6 @@ export async function GET() {
   return NextResponse.json({
     configured: isConfigured,
     hasUrl: !!livekitUrl,
+    serverUrl: livekitUrl,
   });
 }

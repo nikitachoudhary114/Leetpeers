@@ -33,7 +33,13 @@ export default function SignupPage() {
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = { error: "An unexpected network or server error occurred" };
+    }
+    
     setIsLoading(false);
 
     if (!res.ok) {
